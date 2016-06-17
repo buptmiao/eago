@@ -7,7 +7,7 @@ import (
 )
 
 const(
-	Pretty		  = "pretty"
+	Pretty        = "pretty"
 	StartSuccess  = "Start Successfully"
 	StopSuccess   = "Stop Successfully"
 	AuthFailed    = "You do not have the authorization!"
@@ -107,7 +107,7 @@ func RestartCrawler(c *gin.Context) {
 }
 
 func Help(c *gin.Context) {
-
+	//todo
 	usage := map[string]interface{}{
 		"Usage" : "",
 	}
