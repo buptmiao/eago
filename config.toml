@@ -1,0 +1,56 @@
+
+ClusterName = "eagles"
+
+[Local]
+NodeName = "eagle"
+IP = "127.0.0.1"
+Port = 12001
+
+[[NodeList]]
+NodeName = "eagle"
+IP = "127.0.0.1"
+Port = 12001
+
+[[NodeList]]
+NodeName = "miao_shard1"
+IP = "127.0.0.1"
+Port = 12003
+
+HttpPort=12000
+
+CrawlerName="crawler"
+
+Urls = [
+    "http://www.zhihu.com"
+]
+
+Depth=5
+
+InSite=true
+
+TimeOut=5
+
+TTL=2
+
+Retry=3
+
+
+# Config the redis list, you can use multiple instances on a
+# single host by defining various DB number. Every shard must has
+# different name to separate them with each other.
+[[RedisInstances]]
+Name="redisShard1"
+Host="127.0.0.1:6374"
+DB=0
+Pool=5
+
+[[RedisInstances]]
+Name="redisShard2"
+Host="127.0.0.1:6374"
+DB=1
+Pool=5
+
+#Authorize
+Auth=false
+UserName=""
+Token=""
