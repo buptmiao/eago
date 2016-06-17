@@ -1,8 +1,14 @@
 
-###Install
-go get github.com/gin-gonic/gin
-go get gopkg.in/redis.v3
-go get github.com/BurntSushi/toml
+# eago
 
-###合并去重
-使用redis做去重
+## Installation
+    go get github.com/gin-gonic/gin
+    go get gopkg.in/redis.v3
+    go get github.com/BurntSushi/toml
+
+## Usage
+
+#### Filter
+Use Redis to filter the duplicate urls
+
+
