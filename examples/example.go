@@ -1,7 +1,7 @@
 package main
 
 import (
-	"eago"
+	"github.com/buptmiao/eago"
 )
 
 func main() {

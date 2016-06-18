@@ -1,7 +1,7 @@
 package eago
 
 import (
-	"eago/rpc"
+	"rpc"
 	"fmt"
 	"errors"
 )

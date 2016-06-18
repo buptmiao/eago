@@ -1,7 +1,7 @@
 package eago
 
 import (
-	"eago/consistent"
+	"consistent"
 	"time"
 	"sync"
 )

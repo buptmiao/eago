@@ -3,7 +3,7 @@ package eago
 import(
 	"gopkg.in/redis.v3"
 	"sync"
-	"eago/consistent"
+	"consistent"
 	"time"
 	"fmt"
 )
