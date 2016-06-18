@@ -66,7 +66,6 @@ func (c *Cluster) Discover() {
 		}
 
 		err := c.Local.rpc.Join(c.Local.Info, nodeInfo)
-		Log.Println("join done")
 		// found the master
 		if err == nil {
 			exist = true
@@ -81,7 +80,7 @@ func (c *Cluster) Discover() {
 		c.BecomeMaster()
 	}
 }
-
+// Current node becomes Master, and startup tasks belong to master.
 func (c *Cluster) BecomeMaster() {
 	c.Master = c.Local.Info
 	Log.Println("The Master is ", *c.Master)
@@ -90,7 +89,7 @@ func (c *Cluster) BecomeMaster() {
 	c.StartDistributor()
 }
 
-// check the node
+// check the node, if the node has joined in the cluster, return true
 func (c *Cluster) IsMember(node *NodeInfo) bool {
 	for i, _ := range c.Nodes {
 		// node info is equal

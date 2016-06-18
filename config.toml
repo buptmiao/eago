@@ -1,11 +1,39 @@
+# This file contains an overview of various configuration settings
+#
 
+HttpPort = 12002
+
+CrawlerName = "crawler"
+
+Urls = ["http://www.zhihu.com"]
+
+Depth = 5
+
+InSite = true
+
+TimeOut = 5
+
+TTL = 2
+
+Retry=3
+
+#For authorization by using REST api, this function is disabled by default.
+Auth=false
+UserName=""
+Token=""
+
+# Cluster name identifies your cluster for auto-discovery. If you're running
+# multiple clusters on the same network, make sure you're using unique names.
+#
 ClusterName = "eagles"
 
+# the basic information of the local node.
 [Local]
 NodeName = "eagle"
 IP = "127.0.0.1"
 Port = 12001
 
+# NodeList contains all the node info on the same network.
 [[NodeList]]
 NodeName = "eagle"
 IP = "127.0.0.1"
@@ -16,41 +44,18 @@ NodeName = "miao_shard1"
 IP = "127.0.0.1"
 Port = 12003
 
-HttpPort=12000
-
-CrawlerName="crawler"
-
-Urls = [
-    "http://www.zhihu.com"
-]
-
-Depth=5
-
-InSite=true
-
-TimeOut=5
-
-TTL=2
-
-Retry=3
 
 
 # Config the redis list, you can use multiple instances on a
 # single host by defining various DB number. Every shard must has
-# different name to separate them with each other.
-[[RedisInstances]]
-Name="redisShard1"
-Host="127.0.0.1:6374"
-DB=0
-Pool=5
+# different name to identify themselves.
+[Redis]
+    [Redis.redisShard1]
+    Host="127.0.0.1:6374"
+    DB=0
+    Pool=5
 
-[[RedisInstances]]
-Name="redisShard2"
-Host="127.0.0.1:6374"
-DB=1
-Pool=5
-
-#Authorize
-Auth=false
-UserName=""
-Token=""
+    [Redis.redisShard2]
+    Host="127.0.0.1:6374"
+    DB=1
+    Pool=5

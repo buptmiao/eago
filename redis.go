@@ -7,14 +7,11 @@ import (
 	"sync"
 	"time"
 )
-
-var redisInit sync.Once
-
-var DefaultRedisClient *RedisClient
-
 const (
 	KeyForCrawledUrls = "crawledurls"
 )
+var redisInit sync.Once
+var DefaultRedisClient *RedisClient
 
 func KeyForCrawlByDay() string {
 	t := time.Now().Format("2006-01-02")
@@ -24,7 +21,6 @@ func KeyForCrawlByDay() string {
 type RedisClient struct {
 	Clients        map[string]*redis.Client
 	hash           *consistent.Consistent
-	RedisInstances []*RedisInstance
 }
 
 func GetRedisClient() *RedisClient {
@@ -32,19 +28,18 @@ func GetRedisClient() *RedisClient {
 		DefaultRedisClient = &RedisClient{
 			Clients:        make(map[string]*redis.Client),
 			hash:           consistent.New(),
-			RedisInstances: Configs.RedisInstances,
 		}
 		// Init all the clients
-		for _, v := range DefaultRedisClient.RedisInstances {
-			DefaultRedisClient.AddClient(v)
+		for k, v := range Configs.Redis {
+			DefaultRedisClient.AddClient(k, v)
 		}
 	})
 	return DefaultRedisClient
 }
 
-func (r *RedisClient) AddClient(re *RedisInstance) {
-	r.hash.Add(re.Name)
-	r.Clients[re.Name] = redis.NewClient(&redis.Options{
+func (r *RedisClient) AddClient(name string, re *RedisInstance) {
+	r.hash.Add(name)
+	r.Clients[name] = redis.NewClient(&redis.Options{
 		Network:  "tcp",
 		Addr:     re.Host,
 		DB:       re.DB,
@@ -66,7 +61,6 @@ func (r *RedisClient) GetClient(key string) *redis.Client {
 }
 
 type RedisInstance struct {
-	Name string
 	Host string
 	DB   int64
 	Pool int
