@@ -1,19 +1,19 @@
 package main
 
 import (
-	"crawler"
+	"eago"
 )
 
 func main() {
 
-	crawler.LoadConfig()
-	node := crawler.GetNodeInstance()
-	cluster := crawler.GetClusterInstance()
+	eago.LoadConfig()
+	node := eago.GetNodeInstance()
+	cluster := eago.GetClusterInstance()
 
-	crawler.NewRpcServer().Start()
+	eago.NewRpcServer().Start()
 	// Descover will Block the execution, until a master node
 	// is found, or become master itself.
 	cluster.Discover()
 	// start the Http Server
-	crawler.NewHttpServer(node).Serve()
+	eago.NewHttpServer(node).Serve()
 }

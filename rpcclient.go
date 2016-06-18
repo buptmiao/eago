@@ -1,7 +1,7 @@
-package crawler
+package eago
 
 import (
-	"crawler/rpc"
+	"eago/rpc"
 	"fmt"
 )
 //

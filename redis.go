@@ -1,9 +1,9 @@
-package crawler
+package eago
 
 import(
 	"gopkg.in/redis.v3"
 	"sync"
-	"crawler/consistent"
+	"eago/consistent"
 	"time"
 	"fmt"
 )

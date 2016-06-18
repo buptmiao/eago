@@ -1,4 +1,4 @@
-package crawler
+package eago
 
 type Storer interface{
 	Store(resp *UrlResponse)

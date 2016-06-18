@@ -1,4 +1,4 @@
-package crawler
+package eago
 
 
 // see http://gowithconfidence.tumblr.com/post/31426832143/stacked-channels

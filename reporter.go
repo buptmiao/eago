@@ -1,4 +1,4 @@
-package crawler
+package eago
 
 type Reporter struct {
 	status string

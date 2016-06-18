@@ -7,6 +7,9 @@
     go get github.com/BurntSushi/toml
 
 ## Usage
+```go
+
+```
 
 #### Filter
 Use Redis to filter the duplicate urls

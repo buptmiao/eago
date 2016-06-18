@@ -1,4 +1,4 @@
-package crawler
+package eago
 
 type Distributor struct {
 	status string

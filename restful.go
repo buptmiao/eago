@@ -1,4 +1,4 @@
-package crawler
+package eago
 
 import (
 	"github.com/gin-gonic/gin"

@@ -1,4 +1,4 @@
-package crawler
+package eago
 
 
 // Crawler implements the main work of the node.
