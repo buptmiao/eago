@@ -103,6 +103,7 @@ func (c *Cluster)IsMember(node *NodeInfo) bool {
 func (c *Cluster)StartDistributor() {
 	go c.dis.Run()
 }
+
 // Master must detect the slavers, if a slaver is down
 // remove it. the func is only invoked by master.
 func (c *Cluster)StartKeeper() {

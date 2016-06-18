@@ -1,8 +1,8 @@
-# eago
-An easy distribute and restful crawler framework, this can be
+# Eago
+An easy distributed and restful crawler framework
 
 ## Installation
-Before install eago, you should install these dependence:
+Before install eago, you should install these dependencies
 
     go get github.com/gin-gonic/gin
     go get gopkg.in/redis.v3
@@ -12,7 +12,24 @@ Install:
 
     go get github.com/buptmiao/eago
     
-## Usage
+## Feature
+* Config
+Eago uses [Toml](https://github.com/BurntSushi/toml) to configure the parameters, for details: [config.toml](https://github.com/buptmiao/eago/blob/master/config.toml)
+
+* Filter By Redis
+Make sure redis-server is correctly installed and launched on your system. Eago filters the duplicate urls by Redis, and the urls is sharded with a configurable number of redis shards 
+
+* Storage
+You can customize the storage strategy in your application by implementing the interface [Storer](https://github.com/buptmiao/eago/blob/master/storer.go)
+
+* Restful API
+Eago suport restful api, through which user can monitor the eago's statistic information, add new crawler job, control the crawler and so on.
+
+* Distributed
+Eago can be deployed as clusters. An eago cluster consist of one master and multiple slavers, and the master node is auto-discovered
+
+## Example
+
 ```go
 import (
 	"github.com/buptmiao/eago"
@@ -33,7 +50,4 @@ func main() {
 }
 ```
 
-#### Filter
-Use Redis to filter the duplicate urls
-
-
+## More updates will come

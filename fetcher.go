@@ -96,7 +96,7 @@ func (f *Fetcher) handle(req *UrlRequest ) {
 	}
 	resp := NewResponse(req, response)
 
-	// store the resp
+	// store the resp body
 	if f.store != nil {
 		go f.store.Store(resp)
 		//Add the url to Redis, to mark as crawled
@@ -147,4 +147,9 @@ func (f *Fetcher) Stop() {
 func (f *Fetcher) Restart() {
 	f.stop = make(chan struct{})
 	go f.Run()
+}
+
+// use the custom storage strategy
+func (f *Fetcher) SetStorage(st Storer) {
+	f.store = st
 }

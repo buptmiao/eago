@@ -37,7 +37,6 @@ type Crawler struct {
 	report *Reporter
 }
 
-
 func NewCrawler(name string, urls []string ,depth int32, insite bool, to int32, ttl int32, retry int32, node *Node) *Crawler{
 	res := &Crawler{
 		Name: name,
