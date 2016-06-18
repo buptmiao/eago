@@ -1,11 +1,15 @@
-
 # eago
+An easy distribute and restful crawler framework, this can be
 
 ## Installation
+Before install eago, you should install these dependence
     go get github.com/gin-gonic/gin
     go get gopkg.in/redis.v3
     go get github.com/BurntSushi/toml
 
+Install:
+    go get github.com/buptmiao/eago
+    
 ## Usage
 ```go
 import (
