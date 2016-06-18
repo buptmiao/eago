@@ -13,20 +13,15 @@ Install:
     go get github.com/buptmiao/eago
     
 ## Feature
-* Config
-    * Eago uses [Toml](https://github.com/BurntSushi/toml) to configure the parameters, for details: [config.toml](https://github.com/buptmiao/eago/blob/master/config.toml)
+* Eago uses [Toml](https://github.com/BurntSushi/toml) to configure the parameters, for details: [config.toml](https://github.com/buptmiao/eago/blob/master/config.toml)
 
-* Filter By Redis
-    * Make sure redis-server is correctly installed and launched on your system. Eago filters the duplicate urls by Redis, and the urls is sharded with a configurable number of redis shards 
+* Make sure redis-server is correctly installed and launched on your system. Eago filters the duplicate urls by Redis, and the urls is sharded with a configurable number of redis shards 
 
-* Storage
-    * You can customize the storage strategy in your application by implementing the interface [Storer](https://github.com/buptmiao/eago/blob/master/storer.go)
+* You can customize the storage strategy in your application by implementing the interface [Storer](https://github.com/buptmiao/eago/blob/master/storer.go)
 
-* Restful API
-    * Eago supports RESTful API, through which users can monitor eago's statistic information, add new crawler job, control the crawler and so on.
+* Eago supports RESTful API, through which users can monitor eago's statistic information, add new crawler job, control the crawler and so on.
 
-* Distributed
-    * Eago can be deployed as clusters. An eago cluster consist of one master and multiple slavers, and the master node is auto-discovered
+* Eago can be deployed as clusters. An eago cluster consist of one master and multiple slavers, and the master node is auto-discovered
 
 ## Example
 
