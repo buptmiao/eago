@@ -23,7 +23,9 @@ Install:
 
 * Eago can be deployed as clusters. An eago cluster consist of one master and multiple slavers, and the master node is auto-discovered
 
-## Example
+## QuickStart
+
+An Example:
 
 ```go
 import (
@@ -48,5 +50,34 @@ func main() {
 Run the example:
     
     go run example.go -c /yourpath/config.toml 
+
+Monitor the eago's status by REST API:
+
+    curl -XGET localhost:12002?pretty
+
+Response:
+
+```
+    {
+        "ClusterName": "eagles",
+        "NodeNumber": 1,
+        "Master": {
+            "NodeName": "eagle",
+            "IP": "127.0.0.1",
+            "Port": 12001
+        },
+        "slavers": null,
+        "CrawlerStatistics": {
+            "CrawlerName": "crawler",
+            "Running": true,
+            "CrawledUrlsCount": 0,
+            "TotalUrlsCount": 0,
+            "ToCrawledUrlsCount": 0,
+            "Begin At": "2016-06-18 19:48:18",
+            "Elapse": "289.43 secs"
+        },
+        "Message": "You know, for data"
+    }
+```
 
 ## More updates will come
