@@ -1,10 +1,8 @@
 package eago
 
-
-
-const(
-	STOP     =   "stop"
-	RUNNING  =   "running"
+const (
+	STOP    = "stop"
+	RUNNING = "running"
 )
 
 // the Worker defines these three method:Run, Stop, Restart.

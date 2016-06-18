@@ -7,7 +7,7 @@ import (
 
 var (
 	Debug *log.Logger
-	Log *log.Logger
+	Log   *log.Logger
 	Error *log.Logger
 )
 
@@ -17,4 +17,3 @@ func LogInit() {
 	Log = log.New(os.Stdout, "[INFO]: ", format)
 	Error = log.New(os.Stderr, "[ERROR]: ", format|log.Llongfile)
 }
-

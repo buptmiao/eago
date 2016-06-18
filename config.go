@@ -1,10 +1,10 @@
 package eago
 
 import (
-	"io/ioutil"
+	"flag"
 	"fmt"
 	"github.com/BurntSushi/toml"
-	"flag"
+	"io/ioutil"
 	"os"
 )
 
@@ -13,23 +13,23 @@ type config struct {
 	//multiple clusters on the same network, make sure you're using unique names.
 	//
 	ClusterName string
-	Local *NodeInfo
-	NodeList []*NodeInfo
+	Local       *NodeInfo
+	NodeList    []*NodeInfo
 
 	HttpPort uint16
 	// The Crawler Name
 	CrawlerName string
-	Urls []string
-	Depth int32
-	InSite bool
-	TimeOut int32
-	TTL int32
-	Retry int32
+	Urls        []string
+	Depth       int32
+	InSite      bool
+	TimeOut     int32
+	TTL         int32
+	Retry       int32
 
 	RedisInstances []*RedisInstance
-	Auth  bool
-	UserName string
-	Token string
+	Auth           bool
+	UserName       string
+	Token          string
 }
 
 var Configs = new(config)
@@ -58,7 +58,7 @@ func ArbitrateConfigs(c *config) {
 		Error.Println("ClusterName should not be empty! please check you config file!")
 		os.Exit(1)
 	}
-	if c.Local == nil || c.Local.NodeName == ""{
+	if c.Local == nil || c.Local.NodeName == "" {
 		Error.Println("Local node name should not be empty! please check you config file!")
 		os.Exit(1)
 	} else {
@@ -86,7 +86,7 @@ func ArbitrateConfigs(c *config) {
 	if c.TimeOut == 0 {
 		c.TimeOut = 3
 	}
-	if c.Retry == 0{
+	if c.Retry == 0 {
 		c.Retry = 2
 	}
 	Log.Println("Load config file success!")

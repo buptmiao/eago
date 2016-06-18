@@ -1,6 +1,5 @@
 package eago
 
-
 // Crawler implements the main work of the node.
 // It defines some primitive info.
 // If the current node is slave, a node will manage three entities
@@ -32,22 +31,22 @@ type Crawler struct {
 	// the urls to cluster's mster node.
 	upload RequestChan
 	// three kinds of workers
-	fetch *Fetcher
+	fetch   *Fetcher
 	extract *Extractor
-	report *Reporter
+	report  *Reporter
 }
 
-func NewCrawler(name string, urls []string ,depth int32, insite bool, to int32, ttl int32, retry int32, node *Node) *Crawler{
+func NewCrawler(name string, urls []string, depth int32, insite bool, to int32, ttl int32, retry int32, node *Node) *Crawler {
 	res := &Crawler{
-		Name: name,
+		Name:     name,
 		SeedUrls: urls,
-		Depth: depth,
-		Retry: retry,
-		Timeout:to,
-		TTL:ttl,
-		req : NewRequestChan(),
-		resp : NewResponseChan(),
-		upload : NewRequestChan(),
+		Depth:    depth,
+		Retry:    retry,
+		Timeout:  to,
+		TTL:      ttl,
+		req:      NewRequestChan(),
+		resp:     NewResponseChan(),
+		upload:   NewRequestChan(),
 	}
 	res.fetch = NewFetcher(res.Timeout, res.TTL, res.Depth, res.Retry, make(chan struct{}), res.req, res.resp)
 	res.extract = NewExtractor(res.resp, res.upload)
@@ -56,21 +55,20 @@ func NewCrawler(name string, urls []string ,depth int32, insite bool, to int32, 
 	return res
 }
 
-
-func (c *Crawler)Register(url string, method string, parsename string, p Parser) *UrlRequest{
+func (c *Crawler) Register(url string, method string, parsename string, p Parser) *UrlRequest {
 	c.extract.ParserMap[parsename] = p
 	res := NewUrlRequest(url, method, parsename, c.Insite, 0, 0, 0)
-	return  res
+	return res
 }
 
-func (c *Crawler)AddRequest(req *UrlRequest){
-	Log.Println("add request to fetcher: ",req.url)
+func (c *Crawler) AddRequest(req *UrlRequest) {
+	Log.Println("add request to fetcher: ", req.url)
 	// 统计信息+1
 	Stat.AddTotalCount()
 	c.req.push(req)
 }
 
-func (c *Crawler)Start(){
+func (c *Crawler) Start() {
 	Log.Println("Start the crawler...")
 	Stat.BeginNow()
 	go c.fetch.Run()
@@ -78,7 +76,7 @@ func (c *Crawler)Start(){
 	go c.report.Run()
 
 }
-func (c *Crawler)Stop(){
+func (c *Crawler) Stop() {
 	Log.Println("Stop the crawler...")
 	Stat.Stop()
 	c.fetch.Stop()
@@ -86,12 +84,9 @@ func (c *Crawler)Stop(){
 	c.report.Stop()
 }
 
-func (c *Crawler)Restart(){
+func (c *Crawler) Restart() {
 	Log.Println("Restart the crawler...")
 	c.fetch.Restart()
 	c.extract.Restart()
 	c.report.Restart()
 }
-
-
-

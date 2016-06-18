@@ -1,11 +1,11 @@
 package rpc
 
 import (
-	"sync"
-	"testing"
-	"sync/atomic"
-	"fmt"
 	"errors"
+	"fmt"
+	"sync"
+	"sync/atomic"
+	"testing"
 )
 
 var testServerOnce sync.Once
@@ -147,8 +147,8 @@ func TestRpc4(t *testing.T) {
 	wg := sync.WaitGroup{}
 	count := int64(0)
 	wg.Add(8)
-	for j:=0; j < 8; j++ {
-		go func(){
+	for j := 0; j < 8; j++ {
+		go func() {
 			for i := 0; i < 1000; i++ {
 				a, str, e := r(10)
 				if e != nil {

@@ -1,23 +1,23 @@
 package eago
 
 type Distributor struct {
-	status string
-	Requests  RequestChan
-	stop chan struct{}
+	status   string
+	Requests RequestChan
+	stop     chan struct{}
 }
 
-func NewDistributor() *Distributor{
+func NewDistributor() *Distributor {
 	res := &Distributor{
-		status : STOP,
-		Requests : make(RequestChan),
+		status:   STOP,
+		Requests: make(RequestChan),
 	}
 	return res
 }
 
-func (r *Distributor)Run() {
+func (r *Distributor) Run() {
 	Log.Println("Distributor is running...")
 	r.status = RUNNING
-	for{
+	for {
 		select {
 		case <-r.stop:
 			Log.Println("the Distributor is stop!")
@@ -25,13 +25,13 @@ func (r *Distributor)Run() {
 			r.status = STOP
 			return
 		case reqs := <-r.Requests:
-		// no goroutine, this is to reuse one connection to do the rpc, to save resources
+			// no goroutine, this is to reuse one connection to do the rpc, to save resources
 			r.handle(reqs)
 		}
 	}
 }
 
-func (r *Distributor)handle(reqs []*UrlRequest) {
+func (r *Distributor) handle(reqs []*UrlRequest) {
 	for _, req := range reqs {
 		if req.cookieJar == 0 {
 			req.node = GetClusterInstance().GetNode(req.url)
@@ -47,8 +47,8 @@ func (r *Distributor)handle(reqs []*UrlRequest) {
 	}
 }
 
-func (r *Distributor)Stop() {
-	defer func(){
+func (r *Distributor) Stop() {
+	defer func() {
 		if err := recover(); err != nil {
 			Error.Println(err)
 		}
@@ -61,4 +61,3 @@ func (r *Distributor) Restart() {
 	r.stop = make(chan struct{})
 	go r.Run()
 }
-

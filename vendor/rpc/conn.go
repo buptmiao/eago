@@ -13,7 +13,7 @@ type conn struct {
 }
 
 func newConn(network, addr string) (*conn, error) {
-	c, err := net.DialTimeout(network, addr, time.Second * 3)
+	c, err := net.DialTimeout(network, addr, time.Second*3)
 	if err != nil {
 		return nil, err
 	}

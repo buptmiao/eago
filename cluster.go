@@ -2,17 +2,17 @@ package eago
 
 import (
 	"consistent"
-	"time"
 	"sync"
+	"time"
 )
 
 type Cluster struct {
 	ClusterName string
-	Local *Node
-	Master *NodeInfo
-	Nodes []*NodeInfo
-	dis *Distributor
-	hash *consistent.Consistent
+	Local       *Node
+	Master      *NodeInfo
+	Nodes       []*NodeInfo
+	dis         *Distributor
+	hash        *consistent.Consistent
 }
 
 // Constructor of Cluster, init the Cluster, create a new Distributor,
@@ -21,32 +21,32 @@ type Cluster struct {
 var OneCluster sync.Once
 var DefaultCluster *Cluster
 
-func GetClusterInstance() *Cluster{
+func GetClusterInstance() *Cluster {
 	OneCluster.Do(NewCluster)
 	return DefaultCluster
 }
 
-func NewCluster(){
+func NewCluster() {
 	DefaultCluster = &Cluster{
 		ClusterName: Configs.ClusterName,
-		Local : GetNodeInstance(),
-		dis : NewDistributor(),
-		hash : consistent.New(),
+		Local:       GetNodeInstance(),
+		dis:         NewDistributor(),
+		hash:        consistent.New(),
 	}
 }
 
-func (c *Cluster)PushRequest(req *UrlRequest) {
+func (c *Cluster) PushRequest(req *UrlRequest) {
 	c.dis.Requests.push(req)
 }
 
-func (c *Cluster)AddNode(node *NodeInfo) {
+func (c *Cluster) AddNode(node *NodeInfo) {
 	c.Nodes = append(c.Nodes, node)
 	c.hash.Add(node.NodeName)
 	Stat.AddNode(node)
 }
 
 // GetNode will return a nodename from the nodelist by hash the url.
-func (c *Cluster)GetNode(url string) string{
+func (c *Cluster) GetNode(url string) string {
 	res, err := c.hash.Get(url)
 	if err != nil {
 		Error.Println(err)
@@ -57,7 +57,7 @@ func (c *Cluster)GetNode(url string) string{
 // scan nodeList, call Join Rpc Method, if returns error, the remote
 // is not the master, or set master to that node. if all the node list
 // are not the Master, make itself Master.
-func (c *Cluster)Discover() {
+func (c *Cluster) Discover() {
 	var exist bool
 	for _, nodeInfo := range Configs.NodeList {
 
@@ -82,15 +82,16 @@ func (c *Cluster)Discover() {
 	}
 }
 
-func (c *Cluster)BecomeMaster() {
+func (c *Cluster) BecomeMaster() {
 	c.Master = c.Local.Info
 	Log.Println("The Master is ", *c.Master)
 	Stat.SetClusterName(c.ClusterName).SetMaster(c.Master).SetCrawlerName(Configs.CrawlerName)
 	c.StartKeeper()
 	c.StartDistributor()
 }
+
 // check the node
-func (c *Cluster)IsMember(node *NodeInfo) bool {
+func (c *Cluster) IsMember(node *NodeInfo) bool {
 	for i, _ := range c.Nodes {
 		// node info is equal
 		if *node == *c.Nodes[i] {
@@ -100,14 +101,14 @@ func (c *Cluster)IsMember(node *NodeInfo) bool {
 	return false
 }
 
-func (c *Cluster)StartDistributor() {
+func (c *Cluster) StartDistributor() {
 	go c.dis.Run()
 }
 
 // Master must detect the slavers, if a slaver is down
 // remove it. the func is only invoked by master.
-func (c *Cluster)StartKeeper() {
-	go func(){
+func (c *Cluster) StartKeeper() {
+	go func() {
 		for {
 			for _, node := range c.Nodes {
 				if err := c.Local.rpc.KeepAlive(node); err != nil {

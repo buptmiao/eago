@@ -1,10 +1,10 @@
 package eago
 
 import (
-	"time"
 	"net/http"
 	"net/http/cookiejar"
 	"sync"
+	"time"
 )
 
 // Fetcher is an executer doing some kind of job
@@ -15,12 +15,12 @@ type Fetcher struct {
 	// ttl is the interval between two requests
 	ttl int32
 	// this channel can stop the Fetcher
-	stop chan struct{}
+	stop  chan struct{}
 	depth int32
 	retry int32
 	// It is a stacked channel from which the Fetcher pop UrlRequests
 	// see http://gowithconfidence.tumblr.com/post/31426832143/stacked-channels
-	pop  RequestChan
+	pop RequestChan
 	// It is a stacked channel to which the Fetcher push UrlResponses
 	push ResponseChan
 
@@ -33,18 +33,18 @@ type Fetcher struct {
 	store Storer
 }
 
-func NewFetcher(to, ttl,depth,retry int32, stop chan struct{}, in chan []*UrlRequest, out chan []*UrlResponse) *Fetcher{
+func NewFetcher(to, ttl, depth, retry int32, stop chan struct{}, in chan []*UrlRequest, out chan []*UrlResponse) *Fetcher {
 	res := &Fetcher{
-		status : STOP,
-		timeout: to,
-		ttl:ttl,
-		depth:depth,
-		retry:retry,
-		stop : make(chan struct{}),
-		pop : in,
-		push : out,
+		status:    STOP,
+		timeout:   to,
+		ttl:       ttl,
+		depth:     depth,
+		retry:     retry,
+		stop:      make(chan struct{}),
+		pop:       in,
+		push:      out,
 		clientMap: make(map[int]*http.Client),
-		cookieMu: new(sync.Mutex),
+		cookieMu:  new(sync.Mutex),
 	}
 	return res
 }
@@ -54,7 +54,7 @@ func NewFetcher(to, ttl,depth,retry int32, stop chan struct{}, in chan []*UrlReq
 func (f *Fetcher) Run() {
 	Log.Println("Fetcher is running...")
 	f.status = RUNNING
-	for{
+	for {
 		select {
 		case <-f.stop:
 			Log.Println("the Fetcher is stop!")
@@ -71,17 +71,18 @@ func (f *Fetcher) Run() {
 		}
 	}
 }
+
 // do the handle in goroutine, and push the response to the responsechan
-func (f *Fetcher) handle(req *UrlRequest ) {
+func (f *Fetcher) handle(req *UrlRequest) {
 	client := f.getClient(req)
 	request, err := http.NewRequest(req.method, req.url, nil)
 	if err != nil {
-		Error.Println("create request failed, ",err, req.url)
+		Error.Println("create request failed, ", err, req.url)
 		return
 	}
 	response, err := client.Do(request)
 	if err != nil {
-		Error.Println("http request error, ",err)
+		Error.Println("http request error, ", err)
 		if req.retry < f.retry {
 			req.Incr()
 			f.pop.push(req)
@@ -91,7 +92,7 @@ func (f *Fetcher) handle(req *UrlRequest ) {
 		}
 	}
 	if response.StatusCode != 200 {
-		Log.Println("status of the response: ",response.StatusCode)
+		Log.Println("status of the response: ", response.StatusCode)
 		return
 	}
 	resp := NewResponse(req, response)
@@ -99,10 +100,10 @@ func (f *Fetcher) handle(req *UrlRequest ) {
 	// store the resp body
 	if f.store != nil {
 		go f.store.Store(resp)
-		//Add the url to Redis, to mark as crawled
-		rediscli := GetRedisClient().GetClient(req.url)
-		rediscli.SAdd(KeyForCrawlByDay(), req.url)
 	}
+	//Add the url to Redis, to mark as crawled
+	redisCli := GetRedisClient().GetClient(req.url)
+	redisCli.SAdd(KeyForCrawlByDay(), req.url)
 	if req.depth >= req.depth {
 		Log.Println("this request is reach the Max depth, so stop creating new requests")
 		return
@@ -112,7 +113,7 @@ func (f *Fetcher) handle(req *UrlRequest ) {
 
 // this func will get the client by cookie of the request,
 // when not found, create one.
-func (f *Fetcher) getClient(req *UrlRequest)  *http.Client{
+func (f *Fetcher) getClient(req *UrlRequest) *http.Client {
 	cookie := req.cookieJar
 	var client *http.Client
 
@@ -120,7 +121,7 @@ func (f *Fetcher) getClient(req *UrlRequest)  *http.Client{
 	if _, ok := f.clientMap[cookie]; !ok {
 		jar, _ := cookiejar.New(nil)
 		f.clientMap[cookie] = &http.Client{
-			Jar: jar,
+			Jar:     jar,
 			Timeout: time.Second * time.Duration(f.timeout),
 		}
 	}
@@ -135,7 +136,7 @@ func (f *Fetcher) Add(req *UrlRequest) {
 // stop the Fetcher, in fact, it just send the STOP signal to
 // the Fetcher itself, it is invoked by the up-level in general
 func (f *Fetcher) Stop() {
-	defer func(){
+	defer func() {
 		if err := recover(); err != nil {
 			Error.Println(err)
 		}

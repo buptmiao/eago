@@ -2,22 +2,22 @@ package eago
 
 type Reporter struct {
 	status string
-	stop chan struct{}
-	pop RequestChan
+	stop   chan struct{}
+	pop    RequestChan
 }
 
-func NewReporter(pop RequestChan) *Reporter{
+func NewReporter(pop RequestChan) *Reporter {
 	res := &Reporter{
-		status : STOP,
-		pop : pop,
+		status: STOP,
+		pop:    pop,
 	}
 	return res
 }
 
-func (r *Reporter)Run() {
+func (r *Reporter) Run() {
 	Log.Println("Reporter is running...")
 	r.status = RUNNING
-	for{
+	for {
 		select {
 		case <-r.stop:
 			Log.Println("the Reporter is stop!")
@@ -31,7 +31,7 @@ func (r *Reporter)Run() {
 	}
 }
 
-func (r *Reporter)handle(reqs []*UrlRequest) {
+func (r *Reporter) handle(reqs []*UrlRequest) {
 	for _, req := range reqs {
 		if GetNodeInstance().IsMaster() {
 			Log.Println("report the url to self: ", req.url)
@@ -45,8 +45,8 @@ func (r *Reporter)handle(reqs []*UrlRequest) {
 	}
 }
 
-func (r *Reporter)Stop() {
-	defer func(){
+func (r *Reporter) Stop() {
+	defer func() {
 		if err := recover(); err != nil {
 			Error.Println(err)
 		}
@@ -59,5 +59,3 @@ func (r *Reporter) Restart() {
 	r.stop = make(chan struct{})
 	go r.Run()
 }
-
-

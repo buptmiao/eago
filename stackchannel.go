@@ -1,6 +1,5 @@
 package eago
 
-
 // see http://gowithconfidence.tumblr.com/post/31426832143/stacked-channels
 type RequestChan chan []*UrlRequest
 
@@ -20,15 +19,17 @@ func (pc RequestChan) push(cmd ...*UrlRequest) {
 		case pc <- toStack:
 			return
 		case old := <-pc:
-		// Content of the channel got emptied and is now in old, so append whatever
-		// is in toStack to it, so that it can either be inserted in the channel,
-		// or appended to some other content that got through in the meantime.
+			// Content of the channel got emptied and is now in old, so append whatever
+			// is in toStack to it, so that it can either be inserted in the channel,
+			// or appended to some other content that got through in the meantime.
 			toStack = append(old, toStack...)
 		}
 	}
 }
+
 //
 type ResponseChan chan []*UrlResponse
+
 func NewResponseChan() ResponseChan {
 	return make(chan []*UrlResponse, 1)
 }
@@ -43,4 +44,3 @@ func (pc ResponseChan) push(cmd ...*UrlResponse) {
 		}
 	}
 }
-

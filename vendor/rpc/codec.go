@@ -1,10 +1,10 @@
 package rpc
 
 import (
-//	"bytes"
+	//	"bytes"
 	"encoding/gob"
 	"fmt"
-//	"encoding/json"
+	//	"encoding/json"
 	"bytes"
 )
 
@@ -62,6 +62,3 @@ func decodeData(data []byte) (name string, args []interface{}, err error) {
 
 	return
 }
-
-
-

@@ -1,13 +1,13 @@
 package eago
 
 import (
-	"net/http"
 	"io/ioutil"
+	"net/http"
 )
 
 type UrlResponse struct {
-	src *UrlRequest
-	resp *http.Response
+	src    *UrlRequest
+	resp   *http.Response
 	parser string
 
 	body string
@@ -15,9 +15,9 @@ type UrlResponse struct {
 
 func NewResponse(req *UrlRequest, resp *http.Response) *UrlResponse {
 	res := &UrlResponse{
-		src : req,
-		resp : resp,
-		parser : req.parser,
+		src:    req,
+		resp:   resp,
+		parser: req.parser,
 	}
 	if resp != nil {
 		body, err := ioutil.ReadAll(resp.Body)

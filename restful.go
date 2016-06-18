@@ -1,12 +1,12 @@
 package eago
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"fmt"
 )
 
-const(
+const (
 	Pretty        = "pretty"
 	StartSuccess  = "Start Successfully"
 	StopSuccess   = "Stop Successfully"
@@ -16,19 +16,19 @@ const(
 )
 
 type HttpServer struct {
-	node *Node
+	node   *Node
 	router *gin.Engine
 }
 
 func NewHttpServer(node *Node) *HttpServer {
 	res := &HttpServer{
-		node : node,
+		node:   node,
 		router: gin.Default(),
 	}
 	return res
 }
 
-func (h *HttpServer)Serve() {
+func (h *HttpServer) Serve() {
 	h.Register()
 	err := http.ListenAndServe(fmt.Sprintf(":%d", Configs.HttpPort), h.router)
 	if err != nil {
@@ -36,7 +36,7 @@ func (h *HttpServer)Serve() {
 	}
 }
 
-func (h *HttpServer)Register(){
+func (h *HttpServer) Register() {
 	h.router.GET("/", GetProfile)
 	h.router.GET("/help", Help)
 	h.router.GET("/start", StartCrawler)
@@ -60,9 +60,10 @@ func AddUrlToCrawl(c *gin.Context) {
 	//todo
 	Response(c, AddSuccess)
 }
+
 // verify the operator's Authorize
 func Authorize(c *gin.Context) bool {
-	if Configs.Auth == false || Configs.UserName == "" || Configs.Token == ""{
+	if Configs.Auth == false || Configs.UserName == "" || Configs.Token == "" {
 		return true
 	}
 	userName, ok := c.GetQuery("UserName")
@@ -80,7 +81,7 @@ func Authorize(c *gin.Context) bool {
 }
 
 func StopCrawler(c *gin.Context) {
-	if !Authorize(c){
+	if !Authorize(c) {
 		Response(c, AuthFailed)
 		return
 	}
@@ -89,7 +90,7 @@ func StopCrawler(c *gin.Context) {
 }
 
 func StartCrawler(c *gin.Context) {
-	if !Authorize(c){
+	if !Authorize(c) {
 		Response(c, AuthFailed)
 		return
 	}
@@ -98,7 +99,7 @@ func StartCrawler(c *gin.Context) {
 }
 
 func RestartCrawler(c *gin.Context) {
-	if !Authorize(c){
+	if !Authorize(c) {
 		Response(c, AuthFailed)
 		return
 	}
@@ -109,7 +110,7 @@ func RestartCrawler(c *gin.Context) {
 func Help(c *gin.Context) {
 	//todo
 	usage := map[string]interface{}{
-		"Usage" : "",
+		"Usage": "",
 	}
 
 	Response(c, usage)

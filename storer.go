@@ -1,14 +1,13 @@
 package eago
 
-type Storer interface{
+type Storer interface {
 	Store(resp *UrlResponse)
 }
 
-type DefaultStore struct{
-
+type DefaultStore struct {
 }
 
-func (d *DefaultStore)Store(resp *UrlResponse){
+func (d *DefaultStore) Store(resp *UrlResponse) {
 
 	return
 }

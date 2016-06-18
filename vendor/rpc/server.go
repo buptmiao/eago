@@ -169,6 +169,3 @@ func (s *Server) handle(data []byte) ([]byte, error) {
 
 	return encodeData(name, outArgs)
 }
-
-
-
