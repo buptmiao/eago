@@ -2,7 +2,6 @@ package rpc
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 	"sync/atomic"
 	"testing"
