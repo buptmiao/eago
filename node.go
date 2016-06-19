@@ -64,3 +64,8 @@ func (n *Node) GetStatistic() (*Statistic, error) {
 	}
 	return stat, nil
 }
+
+// To customize the storage strategy.
+func (n *Node) SetStorage(st Storer) {
+	n.crawl.fetch.SetStorage(st)
+}

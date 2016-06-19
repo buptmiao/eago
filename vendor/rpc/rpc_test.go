@@ -164,5 +164,4 @@ func TestRpc4(t *testing.T) {
 		}()
 	}
 	wg.Wait()
-	fmt.Println("count: ", count)
 }
