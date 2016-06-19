@@ -64,7 +64,6 @@ func (c *Cluster) Discover() {
 		if nodeInfo.NodeName == c.Local.Info.NodeName {
 			continue
 		}
-
 		err := c.Local.rpc.Join(c.Local.Info, nodeInfo)
 		// found the master
 		if err == nil {
@@ -80,6 +79,7 @@ func (c *Cluster) Discover() {
 		c.BecomeMaster()
 	}
 }
+
 // Current node becomes Master, and startup tasks belong to master.
 func (c *Cluster) BecomeMaster() {
 	c.Master = c.Local.Info

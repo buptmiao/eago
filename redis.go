@@ -7,9 +7,11 @@ import (
 	"sync"
 	"time"
 )
+
 const (
 	KeyForCrawledUrls = "crawledurls"
 )
+
 var redisInit sync.Once
 var DefaultRedisClient *RedisClient
 
@@ -19,15 +21,15 @@ func KeyForCrawlByDay() string {
 }
 
 type RedisClient struct {
-	Clients        map[string]*redis.Client
-	hash           *consistent.Consistent
+	Clients map[string]*redis.Client
+	hash    *consistent.Consistent
 }
 
 func GetRedisClient() *RedisClient {
 	redisInit.Do(func() {
 		DefaultRedisClient = &RedisClient{
-			Clients:        make(map[string]*redis.Client),
-			hash:           consistent.New(),
+			Clients: make(map[string]*redis.Client),
+			hash:    consistent.New(),
 		}
 		// Init all the clients
 		for k, v := range Configs.Redis {

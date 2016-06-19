@@ -9,7 +9,6 @@ import (
 )
 
 type config struct {
-
 	HttpPort uint16
 	// The Crawler Name
 	CrawlerName string
@@ -20,16 +19,16 @@ type config struct {
 	TTL         int32
 	Retry       int32
 
-	Auth           bool
-	UserName       string
-	Token          string
+	Auth     bool
+	UserName string
+	Token    string
 	//Cluster name identifies your cluster for auto-discovery. If you're running
 	//multiple clusters on the same network, make sure you're using unique names.
 	//
 	ClusterName string
 	Local       *NodeInfo
 	NodeList    []*NodeInfo
-	Redis		map[string]*RedisInstance
+	Redis       map[string]*RedisInstance
 }
 
 var Configs = new(config)

@@ -1,21 +1,14 @@
 # This file contains an overview of various configuration settings
 #
 
-HttpPort = 12002
-
 CrawlerName = "crawler"
-
-Urls = ["http://www.zhihu.com"]
-
+Urls = []
 Depth = 5
-
 InSite = true
-
 TimeOut = 5
-
 TTL = 2
-
 Retry=3
+HttpPort = 12002
 
 #For authorization by using REST api, this function is disabled by default.
 Auth=false
@@ -43,8 +36,6 @@ Port = 12001
 NodeName = "miao_shard1"
 IP = "127.0.0.1"
 Port = 12003
-
-
 
 # Config the redis list, you can use multiple instances on a
 # single host by defining various DB number. Every shard must has
