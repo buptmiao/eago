@@ -61,3 +61,7 @@ func (r *Distributor) Restart() {
 	r.stop = make(chan struct{})
 	go r.Run()
 }
+
+func (r *Distributor) Status() string {
+	return r.status
+}

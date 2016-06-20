@@ -26,10 +26,12 @@ func NewExtractor(in ResponseChan, out RequestChan) *Extractor {
 
 func (e *Extractor) Run() {
 	Log.Println("Extractor is running...")
+	e.status = RUNNING
 	for {
 		select {
 		case <-e.stop:
 			Log.Println("the Extractor is stop!")
+		e.status = STOP
 			e.stop = nil
 			return
 		case resps := <-e.pop:
@@ -97,4 +99,8 @@ func (e *Extractor) Stop() {
 func (e *Extractor) Restart() {
 	e.stop = make(chan struct{})
 	go e.Run()
+}
+
+func (e *Extractor) Status() string {
+	return e.status
 }

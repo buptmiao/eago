@@ -59,3 +59,7 @@ func (r *Reporter) Restart() {
 	r.stop = make(chan struct{})
 	go r.Run()
 }
+
+func (r *Reporter) Status() string {
+	return r.status
+}

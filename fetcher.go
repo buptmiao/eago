@@ -154,3 +154,7 @@ func (f *Fetcher) Restart() {
 func (f *Fetcher) SetStorage(st Storer) {
 	f.store = st
 }
+
+func (f *Fetcher) Status() string {
+	return f.status
+}
