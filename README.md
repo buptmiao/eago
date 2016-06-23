@@ -12,7 +12,7 @@ Install:
 
     go get github.com/buptmiao/eago
     
-## Feature
+## Features
 * Eago uses [Toml](https://github.com/BurntSushi/toml) to configure the parameters, for details: [config.toml](https://github.com/buptmiao/eago/blob/master/config.toml)
 
 * Make sure redis-server is correctly installed and launched on your system. Eago filters the duplicate urls by Redis, and the urls is sharded with a configurable number of redis shards 
