@@ -84,7 +84,7 @@ func (r *RpcServer) ReportRequest(req *UrlRequest) error {
 // Rpc Method at server side as slaver, response the
 // KeepAlive request.
 func (r *RpcServer) KeepAlive(remote *NodeInfo) error {
-
+	Log.Println("heart beat from", remote.NodeName, remote.IP)
 	return nil
 }
 

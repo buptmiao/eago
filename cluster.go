@@ -46,6 +46,7 @@ func (c *Cluster) PushRequest(req *UrlRequest) {
 func (c *Cluster) AddNode(node *NodeInfo) {
 	// the slaver is added into Nodes, and its status is active by default.
 	c.Nodes[node] = true
+	c.Local.rpc.AddClient(node)
 	c.hash.Add(node.NodeName)
 	Stat.AddNode(node)
 }
@@ -133,6 +134,9 @@ func (c *Cluster) StartKeeper() {
 				for node, ok := range c.Nodes {
 					if err := c.Local.rpc.KeepAlive(node); err != nil {
 						Error.Println("keepalive failed", err)
+						// if keep alive failed, don't distribute urls to it any more
+						// but keep the rpc client for it, when keep alive success next
+						// time, recover it.
 						c.hash.Remove(node.NodeName)
 						c.Nodes[node] = false
 					} else {

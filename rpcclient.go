@@ -20,6 +20,14 @@ func NewRpcClient() *RpcClient {
 	return res
 }
 
+func (r *RpcClient) AddClient(node *NodeInfo) {
+	r.clients[node.NodeName] = rpc.NewClient("tcp", fmt.Sprintf("%s:%d", node.IP, node.Port), 1)
+}
+
+func (r *RpcClient) RemClient(node *NodeInfo) {
+	delete(r.clients, node.NodeName)
+}
+
 // Invoker should send local NodeInfo to the remote
 func (r *RpcClient) Join(local, node *NodeInfo) error {
 	Log.Println(local.NodeName, "want to join ", *node)
