@@ -41,7 +41,7 @@ func NewNode() {
 	res := &Node{}
 	res.Info = Configs.Local
 	res.rpc = NewRpcClient()
-	res.crawl = NewCrawler(Configs.CrawlerName, Configs.Urls, Configs.Depth, Configs.InSite, Configs.TimeOut, Configs.TTL, Configs.Retry, res)
+	res.crawl = NewCrawler(Configs.CrawlerName, Configs.Urls, Configs.Depth, Configs.InSite, Configs.TimeOut, Configs.TTL, Configs.Retry)
 	DefaultNode = res
 }
 

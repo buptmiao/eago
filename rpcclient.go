@@ -24,25 +24,10 @@ func NewRpcClient() *RpcClient {
 func (r *RpcClient) Join(local, node *NodeInfo) error {
 	Log.Println(local.NodeName, "want to join ", *node)
 	var call func(*NodeInfo) error
-	client := rpc.NewClient("tcp", fmt.Sprintf("%s:%d", node.IP, node.Port), 0)
+	client := rpc.NewClient("tcp", fmt.Sprintf("%s:%d", node.IP, node.Port), 1)
 	client.MakeRpc("Join", &call)
 	return call(local)
 }
-
-// RpcClient register RPC methods, about the rpc framework
-// see https://github.com/siddontang/golib/tree/master/rpc
-//func (r *RpcClient)RegisterForMaster(slavers []*NodeInfo) {
-//	for _, v := range slavers {
-//		client := rpc.NewClient("tcp", fmt.Sprintf("%s:%d", v.IP, v.Port), 3)
-//		client.MakeRpc("Distribute", r.Distribute)
-//		client.MakeRpc("KeepAlive", r.KeepAlive)
-//		r.clients[v.NodeName] = client
-//	}
-//}
-//func (r *RpcClient)RegisterForSlave(master *NodeInfo) {
-//	client := rpc.NewClient("tcp", fmt.Sprintf("%s:%d", master.IP, master.Port), 3)
-//	client.MakeRpc("ReportRequest", r.ReportRequest)
-//}
 
 // Rpc Method at Client side as Master, to distribute the request to
 // the slavers.

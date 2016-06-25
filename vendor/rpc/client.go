@@ -87,7 +87,6 @@ func (c *Client) call(fn reflect.Value, name string, in []reflect.Value) []refle
 	for i := 0; i < len(in); i++ {
 		inArgs[i] = in[i].Interface()
 	}
-
 	data, err := encodeData(name, inArgs)
 	if err != nil {
 		return c.returnCallError(fn, err)

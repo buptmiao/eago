@@ -29,16 +29,32 @@ func TestCluster_AddNode(t *testing.T) {
 		IP:       "",
 		Port:     0,
 	})
-	AssertEqual(GetClusterInstance().Nodes[0].NodeName == "testone")
+	for node, st :=  range GetClusterInstance().Nodes {
+		AssertEqual(node.NodeName == "testone")
+		AssertEqual(st)
+	}
 	v, err := GetClusterInstance().hash.Get("*****")
 	AssertNil(err)
 	AssertEqual(v == "testone")
 }
 
+//func TestCluster_PushRequest(t *testing.T) {
+//	LoadTestConfig()
+//	GetClusterInstance().PushRequest(&UrlRequest{
+//		url: "www.github.com",
+//	})
+//	reqs := <-GetClusterInstance().dis.Requests
+//	AssertEqual(*reqs[0] == UrlRequest{
+//		url: "www.github.com",
+//	})
+//}
+
 func TestCluster_BecomeMaster(t *testing.T) {
 	LoadTestConfig()
 	GetClusterInstance().BecomeMaster()
 	AssertEqual(GetClusterInstance().Master == GetClusterInstance().Local.Info)
+	GetClusterInstance().StopKeeper()
+	GetClusterInstance().StopDistributor()
 }
 
 func TestCluster_Discover(t *testing.T) {
@@ -71,16 +87,7 @@ func TestCluster_IsMember(t *testing.T) {
 	}))
 }
 
-//func TestCluster_PushRequest(t *testing.T) {
-//	LoadTestConfig()
-//	GetClusterInstance().PushRequest(&UrlRequest{
-//		url: "www.github.com",
-//	})
-//	reqs := <-GetClusterInstance().dis.Requests
-//	AssertEqual(*reqs[0] == UrlRequest{
-//		url: "www.github.com",
-//	})
-//}
+
 
 func TestCluster_StartDistributor(t *testing.T) {
 	LoadTestConfig()

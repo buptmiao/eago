@@ -46,8 +46,8 @@ func (r *RpcServer) Register() {
 }
 
 func (r *RpcServer) RegisterType() {
-	rpc.RegisterType(NodeInfo{})
-	rpc.RegisterType(UrlRequest{})
+	rpc.RegisterType(&NodeInfo{})
+	rpc.RegisterType(&UrlRequest{})
 }
 
 // Rpc Method at server side as either Master or slave , if it is

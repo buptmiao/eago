@@ -1,5 +1,6 @@
 package eago
 
+
 // Crawler implements the main work of the node.
 // It defines some primitive info.
 // If the current node is slave, a node will manage three entities
@@ -14,7 +15,7 @@ type Crawler struct {
 	Depth int32
 	// If the field is set true, the crawler will only crawl the pages
 	// that are of same host address.
-	Insite bool
+	InSite bool
 	// the timeout of per request to the target website
 	Timeout int32
 	// when a request fails, it will retry 'Retry' times.
@@ -36,11 +37,12 @@ type Crawler struct {
 	report  *Reporter
 }
 
-func NewCrawler(name string, urls []string, depth int32, insite bool, to int32, ttl int32, retry int32, node *Node) *Crawler {
+func NewCrawler(name string, urls []string, depth int32, inSite bool, to int32, ttl int32, retry int32) *Crawler {
 	res := &Crawler{
 		Name:     name,
 		SeedUrls: urls,
 		Depth:    depth,
+		InSite:   inSite,
 		Retry:    retry,
 		Timeout:  to,
 		TTL:      ttl,
@@ -51,13 +53,12 @@ func NewCrawler(name string, urls []string, depth int32, insite bool, to int32, 
 	res.fetch = NewFetcher(res.Timeout, res.TTL, res.Depth, res.Retry, make(chan struct{}), res.req, res.resp)
 	res.extract = NewExtractor(res.resp, res.upload)
 	res.report = NewReporter(res.upload)
-	node.crawl = res
 	return res
 }
 
-func (c *Crawler) Register(url string, method string, parsename string, p Parser) *UrlRequest {
-	c.extract.ParserMap[parsename] = p
-	res := NewUrlRequest(url, method, parsename, c.Insite, 0, 0, 0)
+func (c *Crawler) Register(url string, method string, parseName string, p Parser) *UrlRequest {
+	c.extract.ParserMap[parseName] = p
+	res := NewUrlRequest(url, method, parseName, c.InSite, 0, 0, 0)
 	return res
 }
 
@@ -76,6 +77,7 @@ func (c *Crawler) Start() {
 	go c.report.Run()
 
 }
+
 func (c *Crawler) Stop() {
 	Log.Println("Stop the crawler...")
 	Stat.Stop()

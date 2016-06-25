@@ -102,6 +102,7 @@ func (s *Server) onConn(co net.Conn) {
 	defer func() {
 		if e := recover(); e != nil {
 			//later log
+			println("type error: ", e)
 			if err, ok := e.(error); ok {
 				println("recover", err.Error())
 			}
@@ -114,7 +115,6 @@ func (s *Server) onConn(co net.Conn) {
 		if err != nil {
 			return
 		}
-
 		data, err = s.handle(data)
 		if err != nil {
 			println("handle error ", err.Error())

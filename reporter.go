@@ -9,6 +9,7 @@ type Reporter struct {
 func NewReporter(pop RequestChan) *Reporter {
 	res := &Reporter{
 		status: STOP,
+		stop:	   make(chan struct{}),
 		pop:    pop,
 	}
 	return res

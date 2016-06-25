@@ -17,6 +17,7 @@ type Extractor struct {
 func NewExtractor(in ResponseChan, out RequestChan) *Extractor {
 	res := &Extractor{
 		status:    STOP,
+		stop:	   make(chan struct{}),
 		pop:       in,
 		push:      out,
 		ParserMap: make(map[string]Parser),
@@ -31,7 +32,7 @@ func (e *Extractor) Run() {
 		select {
 		case <-e.stop:
 			Log.Println("the Extractor is stop!")
-		e.status = STOP
+			e.status = STOP
 			e.stop = nil
 			return
 		case resps := <-e.pop:

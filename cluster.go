@@ -10,9 +10,12 @@ type Cluster struct {
 	ClusterName string
 	Local       *Node
 	Master      *NodeInfo
-	Nodes       []*NodeInfo
+	// Nodes describe the slavers' status, if true, the slaver is active,
+	// otherwise, the slaver is down.
+	Nodes       map[*NodeInfo]bool
 	dis         *Distributor
 	hash        *consistent.Consistent
+	stopKeeper  chan struct{}
 }
 
 // Constructor of Cluster, init the Cluster, create a new Distributor,
@@ -30,6 +33,7 @@ func NewCluster() {
 	DefaultCluster = &Cluster{
 		ClusterName: Configs.ClusterName,
 		Local:       GetNodeInstance(),
+		Nodes: 		 make(map[*NodeInfo]bool),
 		dis:         NewDistributor(),
 		hash:        consistent.New(),
 	}
@@ -40,7 +44,8 @@ func (c *Cluster) PushRequest(req *UrlRequest) {
 }
 
 func (c *Cluster) AddNode(node *NodeInfo) {
-	c.Nodes = append(c.Nodes, node)
+	// the slaver is added into Nodes, and its status is active by default.
+	c.Nodes[node] = true
 	c.hash.Add(node.NodeName)
 	Stat.AddNode(node)
 }
@@ -67,6 +72,7 @@ func (c *Cluster) Discover() {
 		err := c.Local.rpc.Join(c.Local.Info, nodeInfo)
 		// found the master
 		if err == nil {
+			Log.Println("Join success, Master is: ", nodeInfo.NodeName, nodeInfo.IP)
 			exist = true
 			c.Master = nodeInfo
 			break
@@ -91,9 +97,9 @@ func (c *Cluster) BecomeMaster() {
 
 // check the node, if the node has joined in the cluster, return true
 func (c *Cluster) IsMember(node *NodeInfo) bool {
-	for i, _ := range c.Nodes {
+	for k, _ := range c.Nodes {
 		// node info is equal
-		if *node == *c.Nodes[i] {
+		if *node == *k {
 			return true
 		}
 	}
@@ -104,18 +110,45 @@ func (c *Cluster) StartDistributor() {
 	go c.dis.Run()
 }
 
+func (c *Cluster) StopDistributor() {
+	c.dis.Stop()
+}
+
+func (c *Cluster) RestartDistributor() {
+	c.dis.Restart()
+}
+
 // Master must detect the slavers, if a slaver is down
 // remove it. the func is only invoked by master.
 func (c *Cluster) StartKeeper() {
+	Log.Println("Keeper is running...")
+	c.stopKeeper = make(chan struct{})
 	go func() {
 		for {
-			for _, node := range c.Nodes {
-				if err := c.Local.rpc.KeepAlive(node); err != nil {
-					Error.Println("keepalive failed", err)
-					return
+			select {
+			case <-c.stopKeeper:
+				Log.Println("Keeper is stopped")
+				return
+			default:
+				for node, ok := range c.Nodes {
+					if err := c.Local.rpc.KeepAlive(node); err != nil {
+						Error.Println("keepalive failed", err)
+						c.hash.Remove(node.NodeName)
+						c.Nodes[node] = false
+					} else {
+						if !ok {
+							c.hash.Add(node.NodeName)
+							c.Nodes[node] = true
+						}
+					}
 				}
+				time.Sleep(time.Second * 5)
 			}
-			time.Sleep(time.Second * 5)
 		}
 	}()
+}
+
+// stop the keeper by closing the chan
+func (c *Cluster) StopKeeper() {
+	close(c.stopKeeper)
 }
