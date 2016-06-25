@@ -62,7 +62,7 @@ func (r *RpcClient) KeepAlive(remote *NodeInfo) error {
 
 // Rpc Method at Client side as Slaver, to sync the statistic info
 func (r *RpcClient) SyncStatistic(node *NodeInfo) (*Statistic, error) {
-	var call func() (*Statistic, error)
+	var call func(*NodeInfo) (*Statistic, error)
 	r.clients[GetClusterInstance().Master.NodeName].MakeRpc("SyncStatistic", &call)
-	return call()
+	return call(node)
 }

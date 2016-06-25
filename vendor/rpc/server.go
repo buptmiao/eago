@@ -102,7 +102,7 @@ func (s *Server) onConn(co net.Conn) {
 	defer func() {
 		if e := recover(); e != nil {
 			//later log
-			println("type error: ", e)
+			fmt.Println("type error: ", e)
 			if err, ok := e.(error); ok {
 				println("recover", err.Error())
 			}

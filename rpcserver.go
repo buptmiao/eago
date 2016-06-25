@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	ErrNotClusterMember = errors.New("not the cluster member")
+	ErrNotClusterMember = errors.New("Not the cluster member")
 	ErrNotMaster        = errors.New("I am not the master, thank you!")
 )
 
@@ -41,6 +41,7 @@ func (r *RpcServer) Register() {
 	r.rpc.Register("Distribute", r.Distribute)
 	r.rpc.Register("ReportRequest", r.ReportRequest)
 	r.rpc.Register("KeepAlive", r.KeepAlive)
+	r.rpc.Register("SyncStatistic", r.SyncStatistic)
 
 	r.RegisterType()
 }
@@ -48,6 +49,7 @@ func (r *RpcServer) Register() {
 func (r *RpcServer) RegisterType() {
 	rpc.RegisterType(&NodeInfo{})
 	rpc.RegisterType(&UrlRequest{})
+	rpc.RegisterType(&Statistic{})
 }
 
 // Rpc Method at server side as either Master or slave , if it is
@@ -93,10 +95,10 @@ func (r *RpcServer) KeepAlive(remote *NodeInfo) error {
 func (r *RpcServer) SyncStatistic(node *NodeInfo) (*Statistic, error) {
 	// check the id itself
 	if !GetNodeInstance().IsMaster() {
-		return nil, ErrNotMaster
+		return &Statistic{}, ErrNotMaster
 	}
 	if GetClusterInstance().IsMember(node) {
 		return Stat.GetStatistic(), nil
 	}
-	return nil, ErrNotClusterMember
+	return &Statistic{}, ErrNotClusterMember
 }

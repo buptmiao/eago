@@ -45,6 +45,7 @@ func (c *Cluster) PushRequest(req *UrlRequest) {
 
 func (c *Cluster) AddNode(node *NodeInfo) {
 	// the slaver is added into Nodes, and its status is active by default.
+	Log.Println("A new node is joined: ", node.NodeName, node.IP)
 	c.Nodes[node] = true
 	c.Local.rpc.AddClient(node)
 	c.hash.Add(node.NodeName)
@@ -76,6 +77,7 @@ func (c *Cluster) Discover() {
 			Log.Println("Join success, Master is: ", nodeInfo.NodeName, nodeInfo.IP)
 			exist = true
 			c.Master = nodeInfo
+			c.Local.rpc.AddClient(c.Master)
 			break
 		} else {
 			Log.Println("Join failed: ", err)
@@ -119,6 +121,8 @@ func (c *Cluster) RestartDistributor() {
 	c.dis.Restart()
 }
 
+
+
 // Master must detect the slavers, if a slaver is down
 // remove it. the func is only invoked by master.
 func (c *Cluster) StartKeeper() {
@@ -133,20 +137,22 @@ func (c *Cluster) StartKeeper() {
 			default:
 				for node, ok := range c.Nodes {
 					if err := c.Local.rpc.KeepAlive(node); err != nil {
-						Error.Println("keepalive failed", err)
+						Log.Println("A slaver is down: ",node.NodeName, node.IP)
 						// if keep alive failed, don't distribute urls to it any more
 						// but keep the rpc client for it, when keep alive success next
 						// time, recover it.
-						c.hash.Remove(node.NodeName)
-						c.Nodes[node] = false
+						c.UpdateSlaverStatus(node, false)
 					} else {
 						if !ok {
-							c.hash.Add(node.NodeName)
-							c.Nodes[node] = true
+							Log.Println("A slaver is recovered: ", node.NodeName, node.IP)
+							c.UpdateSlaverStatus(node, true)
 						}
 					}
+					// 每一个节点
+					time.Sleep(time.Millisecond)
 				}
-				time.Sleep(time.Second * 5)
+
+				time.Sleep(time.Second * 5 - time.Millisecond * time.Duration(len(c.Nodes)))
 			}
 		}
 	}()
@@ -155,4 +161,14 @@ func (c *Cluster) StartKeeper() {
 // stop the keeper by closing the chan
 func (c *Cluster) StopKeeper() {
 	close(c.stopKeeper)
+}
+
+func (c *Cluster) UpdateSlaverStatus(node *NodeInfo, v bool) {
+	if v {
+		c.hash.Add(node.NodeName)
+	} else {
+		c.hash.Remove(node.NodeName)
+	}
+	c.Nodes[node] = v
+	Stat.UpdateNodeAlive(node, v)
 }

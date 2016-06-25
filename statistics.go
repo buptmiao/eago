@@ -25,9 +25,14 @@ type Statistic struct {
 	ClusterName string           `json:"ClusterName"`
 	NodeNum     int              `json:"NodeNumber"`
 	Master      *NodeInfo        `json:"Master"`
-	Slavers     []*NodeInfo      `json:"slavers"`
+	Slavers     []*SlaverStatus  `json:"slavers"`
 	Crawler     CrawlerStatistic `json:"CrawlerStatistics"`
 	Message     string           `json:"Message"`
+}
+
+type SlaverStatus struct {
+	*NodeInfo
+	alive bool
 }
 
 const (
@@ -80,8 +85,28 @@ func (s *Statistic) SetMaster(Node *NodeInfo) *Statistic {
 }
 
 func (s *Statistic) AddNode(Node *NodeInfo) *Statistic {
+	for _, node := range s.Slavers {
+		if *Node == *node.NodeInfo {
+			node.alive = true
+			return s
+		}
+	}
 	s.NodeNum++
-	s.Slavers = append(s.Slavers, Node)
+	slaverStatus := &SlaverStatus{
+		NodeInfo:  Node,
+		alive: true,
+	}
+	s.Slavers = append(s.Slavers, slaverStatus)
+	return s
+}
+
+func (s *Statistic) UpdateNodeAlive(Node *NodeInfo, v bool) *Statistic{
+	for _, node := range s.Slavers {
+		if *Node == *node.NodeInfo {
+			node.alive = v
+			return s
+		}
+	}
 	return s
 }
 
