@@ -13,6 +13,7 @@ const (
 	AuthFailed    = "You do not have the authorization!"
 	AddSuccess    = "Add Successfully"
 	GetStatFailed = "Fail to get Statistic Info"
+	Success       = "Success!"
 )
 
 type HttpServer struct {
@@ -43,6 +44,7 @@ func (h *HttpServer) Register() {
 	h.router.GET("/stop", StopCrawler)
 	h.router.GET("/restart", RestartCrawler)
 	h.router.POST("/add", AddUrlToCrawl)
+	h.router.GET("/killmaster", KillMaster)
 }
 
 func GetProfile(c *gin.Context) {
@@ -105,6 +107,16 @@ func RestartCrawler(c *gin.Context) {
 	}
 	GetNodeInstance().crawl.Restart()
 	Response(c, StartSuccess)
+}
+
+func KillMaster(c *gin.Context) {
+	if GetNodeInstance().IsMaster() {
+		GetClusterInstance().StopTheWorld()
+		GetClusterInstance().Discover()
+		Response(c, Success)
+	} else {
+		Response(c, ErrNotMaster)
+	}
 }
 
 func Help(c *gin.Context) {

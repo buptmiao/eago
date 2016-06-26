@@ -47,6 +47,8 @@ func NewNode() {
 
 func (n *Node) IsMaster() bool {
 	// If the local node info is equal to master node
+
+	Log.Println(n.Info, GetClusterInstance().Master)
 	return *n.Info == *GetClusterInstance().Master
 }
 

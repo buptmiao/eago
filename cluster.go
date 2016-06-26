@@ -90,7 +90,7 @@ func (c *Cluster) Discover() {
 			c.BecomeSlaver()
 			break
 		} else {
-			Log.Println("Join failed: ", err)
+			Log.Println("Join failed: ", err, nodeInfo)
 		}
 	}
 	if !exist {
@@ -206,12 +206,16 @@ func (c *Cluster) MonitorMaster() {
 	<-c.timer.C
 	// Delete Master
 	c.Local.rpc.RemClient(c.Master)
-	c.Master = nil
 	// discover new master
 	c.StopTheWorld()
+	c.Master = nil
 	c.Discover()
 }
 
 func (c *Cluster) StopTheWorld() {
+	if GetNodeInstance().IsMaster() {
+		c.StopDistributor()
+		c.StopKeeper()
+	}
 	GetNodeInstance().crawl.Stop()
 }
