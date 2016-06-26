@@ -6,16 +6,25 @@ import (
 	"time"
 )
 
+const (
+	KeeperPeriod        = time.Second * 5
+	HeartBeatInterval   = time.Millisecond
+	MonitorMasterPeriod = time.Second * 12
+)
+
+var ()
+
 type Cluster struct {
 	ClusterName string
 	Local       *Node
 	Master      *NodeInfo
-	// Nodes describe the slavers' status, if true, the slaver is active,
-	// otherwise, the slaver is down.
-	Nodes       map[*NodeInfo]bool
-	dis         *Distributor
-	hash        *consistent.Consistent
-	stopKeeper  chan struct{}
+	//Nodes describe the slavers' status, if true, the slaver is active,
+	//otherwise, the slaver is down.
+	Nodes      map[*NodeInfo]bool
+	dis        *Distributor
+	hash       *consistent.Consistent
+	stopKeeper chan struct{}
+	timer      *time.Timer
 }
 
 // Constructor of Cluster, init the Cluster, create a new Distributor,
@@ -33,7 +42,7 @@ func NewCluster() {
 	DefaultCluster = &Cluster{
 		ClusterName: Configs.ClusterName,
 		Local:       GetNodeInstance(),
-		Nodes: 		 make(map[*NodeInfo]bool),
+		Nodes:       make(map[*NodeInfo]bool),
 		dis:         NewDistributor(),
 		hash:        consistent.New(),
 	}
@@ -78,6 +87,7 @@ func (c *Cluster) Discover() {
 			exist = true
 			c.Master = nodeInfo
 			c.Local.rpc.AddClient(c.Master)
+			c.BecomeSlaver()
 			break
 		} else {
 			Log.Println("Join failed: ", err)
@@ -121,8 +131,6 @@ func (c *Cluster) RestartDistributor() {
 	c.dis.Restart()
 }
 
-
-
 // Master must detect the slavers, if a slaver is down
 // remove it. the func is only invoked by master.
 func (c *Cluster) StartKeeper() {
@@ -137,7 +145,7 @@ func (c *Cluster) StartKeeper() {
 			default:
 				for node, ok := range c.Nodes {
 					if err := c.Local.rpc.KeepAlive(node); err != nil {
-						Log.Println("A slaver is down: ",node.NodeName, node.IP)
+						Log.Println("A slaver is down: ", node.NodeName, node.IP)
 						// if keep alive failed, don't distribute urls to it any more
 						// but keep the rpc client for it, when keep alive success next
 						// time, recover it.
@@ -148,11 +156,11 @@ func (c *Cluster) StartKeeper() {
 							c.UpdateSlaverStatus(node, true)
 						}
 					}
-					// 每一个节点
-					time.Sleep(time.Millisecond)
+					//
+					time.Sleep(HeartBeatInterval)
 				}
-
-				time.Sleep(time.Second * 5 - time.Millisecond * time.Duration(len(c.Nodes)))
+				// Keep alive every 5 seconds at least
+				time.Sleep(KeeperPeriod - HeartBeatInterval*time.Duration(len(c.Nodes)))
 			}
 		}
 	}()
@@ -171,4 +179,39 @@ func (c *Cluster) UpdateSlaverStatus(node *NodeInfo, v bool) {
 	}
 	c.Nodes[node] = v
 	Stat.UpdateNodeAlive(node, v)
+}
+
+/////////////////////////////////////////////////////////////////////
+// Functions below are for slavers
+/////////////////////////////////////////////////////////////////////
+func (c *Cluster) BecomeSlaver() {
+	if c.timer == nil {
+		c.timer = time.NewTimer(MonitorMasterPeriod)
+	} else {
+		c.ResetTimer()
+	}
+	go c.MonitorMaster()
+	GetNodeInstance().crawl.Restart()
+}
+
+func (c *Cluster) ResetTimer() {
+	c.timer.Reset(MonitorMasterPeriod)
+}
+
+// MonitorMaster check the heart beat package from master, If there is no
+// HB package for 12 seconds, stop the world and discover the new master.
+// when a new master is selected, restart the world.
+func (c *Cluster) MonitorMaster() {
+	// slavers block here
+	<-c.timer.C
+	// Delete Master
+	c.Local.rpc.RemClient(c.Master)
+	c.Master = nil
+	// discover new master
+	c.StopTheWorld()
+	c.Discover()
+}
+
+func (c *Cluster) StopTheWorld() {
+	GetNodeInstance().crawl.Stop()
 }

@@ -25,6 +25,10 @@ func (r *RpcClient) AddClient(node *NodeInfo) {
 }
 
 func (r *RpcClient) RemClient(node *NodeInfo) {
+	err := r.clients[node.NodeName].Close()
+	if err != nil {
+		Error.Println(err)
+	}
 	delete(r.clients, node.NodeName)
 }
 
@@ -49,6 +53,10 @@ func (r *RpcClient) Distribute(req *UrlRequest) error {
 // to the master.
 func (r *RpcClient) ReportRequest(req *UrlRequest) error {
 	var call func(*UrlRequest) error
+	// Master is down
+	if GetClusterInstance().Master == nil {
+		return ErrNoneMaster
+	}
 	r.clients[GetClusterInstance().Master.NodeName].MakeRpc("ReportRequest", &call)
 	return call(req)
 }
@@ -63,6 +71,10 @@ func (r *RpcClient) KeepAlive(remote *NodeInfo) error {
 // Rpc Method at Client side as Slaver, to sync the statistic info
 func (r *RpcClient) SyncStatistic(node *NodeInfo) (*Statistic, error) {
 	var call func(*NodeInfo) (*Statistic, error)
+	// Master is down
+	if GetClusterInstance().Master == nil {
+		return nil, ErrNoneMaster
+	}
 	r.clients[GetClusterInstance().Master.NodeName].MakeRpc("SyncStatistic", &call)
 	return call(node)
 }

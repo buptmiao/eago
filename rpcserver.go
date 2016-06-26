@@ -9,6 +9,7 @@ import (
 var (
 	ErrNotClusterMember = errors.New("Not the cluster member")
 	ErrNotMaster        = errors.New("I am not the master, thank you!")
+	ErrNoneMaster       = errors.New("Master is not found")
 )
 
 type RpcServer struct {
@@ -87,6 +88,7 @@ func (r *RpcServer) ReportRequest(req *UrlRequest) error {
 // KeepAlive request.
 func (r *RpcServer) KeepAlive(remote *NodeInfo) error {
 	Log.Println("heart beat from", remote.NodeName, remote.IP)
+	GetClusterInstance().ResetTimer()
 	return nil
 }
 

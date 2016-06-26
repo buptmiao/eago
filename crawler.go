@@ -1,6 +1,5 @@
 package eago
 
-
 // Crawler implements the main work of the node.
 // It defines some primitive info.
 // If the current node is slave, a node will manage three entities

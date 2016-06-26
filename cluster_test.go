@@ -29,7 +29,7 @@ func TestCluster_AddNode(t *testing.T) {
 		IP:       "",
 		Port:     0,
 	})
-	for node, st :=  range GetClusterInstance().Nodes {
+	for node, st := range GetClusterInstance().Nodes {
 		AssertEqual(node.NodeName == "testone")
 		AssertEqual(st)
 	}
@@ -86,8 +86,6 @@ func TestCluster_IsMember(t *testing.T) {
 		Port:     0,
 	}))
 }
-
-
 
 func TestCluster_StartDistributor(t *testing.T) {
 	LoadTestConfig()

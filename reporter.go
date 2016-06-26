@@ -9,7 +9,7 @@ type Reporter struct {
 func NewReporter(pop RequestChan) *Reporter {
 	res := &Reporter{
 		status: STOP,
-		stop:	   make(chan struct{}),
+		stop:   make(chan struct{}),
 		pop:    pop,
 	}
 	return res
@@ -41,6 +41,8 @@ func (r *Reporter) handle(reqs []*UrlRequest) {
 			Log.Println("[RPC] report the url to master: ", req.url)
 			if err := GetNodeInstance().rpc.ReportRequest(req); err != nil {
 				Error.Println(err)
+				// push the req back to the pop chan.
+				r.pop.push(req)
 			}
 		}
 	}

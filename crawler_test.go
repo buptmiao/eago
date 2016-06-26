@@ -14,21 +14,21 @@ func TestCrawler(t *testing.T) {
 	AssertEqual(*reqpop[0] == *req)
 
 	c.Start()
-	time.Sleep(time.Millisecond*200)
+	time.Sleep(time.Millisecond * 200)
 
 	AssertEqual(c.extract.Status() == RUNNING)
 	AssertEqual(c.fetch.Status() == RUNNING)
 	AssertEqual(c.report.Status() == RUNNING)
 
 	c.Stop()
-	time.Sleep(time.Millisecond*200)
+	time.Sleep(time.Millisecond * 200)
 
 	AssertEqual(c.extract.Status() == STOP)
 	AssertEqual(c.fetch.Status() == STOP)
 	AssertEqual(c.report.Status() == STOP)
 
 	c.Restart()
-	time.Sleep(time.Millisecond*200)
+	time.Sleep(time.Millisecond * 200)
 
 	AssertEqual(c.extract.Status() == RUNNING)
 	AssertEqual(c.fetch.Status() == RUNNING)

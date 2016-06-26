@@ -49,7 +49,7 @@ func GetProfile(c *gin.Context) {
 	stat, err := GetNodeInstance().GetStatistic()
 	if err != nil {
 		Error.Println(err)
-		Response(c, GetStatFailed + ": " + err.Error())
+		Response(c, GetStatFailed+": "+err.Error())
 		return
 	}
 	Response(c, stat)

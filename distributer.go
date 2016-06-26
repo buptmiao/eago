@@ -9,7 +9,7 @@ type Distributor struct {
 func NewDistributor() *Distributor {
 	res := &Distributor{
 		status:   STOP,
-		stop: make(chan struct{}),
+		stop:     make(chan struct{}),
 		Requests: make(RequestChan),
 	}
 	return res

@@ -32,7 +32,7 @@ type Statistic struct {
 
 type SlaverStatus struct {
 	*NodeInfo
-	Alive bool                   `json:"alive"`
+	Alive bool `json:"alive"`
 }
 
 const (
@@ -93,14 +93,14 @@ func (s *Statistic) AddNode(Node *NodeInfo) *Statistic {
 	}
 	s.NodeNum++
 	slaverStatus := &SlaverStatus{
-		NodeInfo:  Node,
-		Alive: true,
+		NodeInfo: Node,
+		Alive:    true,
 	}
 	s.Slavers = append(s.Slavers, slaverStatus)
 	return s
 }
 
-func (s *Statistic) UpdateNodeAlive(Node *NodeInfo, v bool) *Statistic{
+func (s *Statistic) UpdateNodeAlive(Node *NodeInfo, v bool) *Statistic {
 	for _, node := range s.Slavers {
 		if *Node == *node.NodeInfo {
 			node.Alive = v
