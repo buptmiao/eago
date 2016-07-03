@@ -62,7 +62,7 @@ func (c *Crawler) Register(url string, method string, parseName string, p Parser
 }
 
 func (c *Crawler) AddRequest(req *UrlRequest) {
-	Log.Println("add request to fetcher: ", req.url)
+	Log.Println("add request to fetcher: ", req.Url)
 	//
 	Stat.AddTotalCount()
 	c.req.push(req)

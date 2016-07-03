@@ -45,7 +45,7 @@ func (r *RpcClient) Join(local, node *NodeInfo) error {
 // the slavers.
 func (r *RpcClient) Distribute(req *UrlRequest) error {
 	var call func(*UrlRequest) error
-	r.clients[req.node].MakeRpc("Distribute", &call)
+	r.clients[req.Node].MakeRpc("Distribute", &call)
 	return call(req)
 }
 

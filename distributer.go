@@ -34,15 +34,15 @@ func (r *Distributor) Run() {
 
 func (r *Distributor) handle(reqs []*UrlRequest) {
 	for _, req := range reqs {
-		if req.cookieJar == 0 {
-			req.node = GetClusterInstance().GetNode(req.url)
+		if req.CookieJar == 0 {
+			req.Node = GetClusterInstance().GetNode(req.Url)
 		}
 		// check if the req's node name is local node
-		if GetNodeInstance().Info.NodeName == req.node {
-			Log.Println("distribute the url to self: ", req.url)
+		if GetNodeInstance().Info.NodeName == req.Node {
+			Log.Println("distribute the url to self: ", req.Url)
 			GetNodeInstance().crawl.req.push(req)
 		} else {
-			Log.Println("[RPC] distribute the url to ", req.node, ". url:", req.url)
+			Log.Println("[RPC] distribute the url to ", req.Node, ". url:", req.Url)
 			GetNodeInstance().rpc.Distribute(req)
 		}
 	}
