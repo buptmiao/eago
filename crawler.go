@@ -55,9 +55,9 @@ func NewCrawler(name string, urls []string, depth int32, inSite bool, to int32, 
 	return res
 }
 
-func (c *Crawler) Register(url string, method string, parseName string, p Parser) *UrlRequest {
+func (c *Crawler) Register(url, method, parseName, proxy string, p Parser) *UrlRequest {
 	c.extract.ParserMap[parseName] = p
-	res := NewUrlRequest(url, method, parseName, c.InSite, 0, 0, 0)
+	res := NewUrlRequest(url, method, parseName,proxy, c.InSite, 0, 0, 0)
 	return res
 }
 

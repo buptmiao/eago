@@ -56,7 +56,7 @@ func (e *Extractor) handle(resp *UrlResponse) {
 	if urls != nil {
 		newRequests := make([]*UrlRequest, 0, len(urls))
 		for _, url := range urls {
-			req := NewUrlRequest(url, resp.src.Method, resp.parser, resp.src.Insite, resp.src.Depth+1, 0, resp.src.CookieJar)
+			req := NewUrlRequest(url, resp.src.Method, resp.parser, resp.src.Proxy, resp.src.Insite, resp.src.Depth+1, 0, resp.src.CookieJar)
 			newRequests = append(newRequests, req)
 		}
 		e.push.push(newRequests...)
