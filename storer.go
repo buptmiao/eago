@@ -33,7 +33,7 @@ func NewDefaultStore(r *RedisClient) *DefaultStore {
 }
 
 func (d *DefaultStore) Store(resp *UrlResponse) {
-	url := resp.src.url
+	url := resp.src.Url
 	client := d.GetClient(url)
 	client.Set(KeyForUrlStore(url), resp.body, 0)
 	return

@@ -10,6 +10,7 @@ var (
 	ErrNotClusterMember = errors.New("Not the cluster member")
 	ErrNotMaster        = errors.New("I am not the master, thank you!")
 	ErrNoneMaster       = errors.New("Master is not found")
+	ErrDistributeUrl    = errors.New("Distribute the url to the wrong node")
 )
 
 type RpcServer struct {
@@ -67,8 +68,8 @@ func (r *RpcServer) Join(remote *NodeInfo) error {
 // from master, and add it to the crawler to fetch content.
 func (r *RpcServer) Distribute(req *UrlRequest) error {
 	// the req is send to the wrong node
-	if req.node != GetNodeInstance().Info.NodeName {
-		return rpc.RpcError{fmt.Sprintf("please check the node info, Node: %s, req:%s", GetNodeInstance().Info.NodeName, req.node)}
+	if req.Node != GetNodeInstance().Info.NodeName {
+		return ErrDistributeUrl
 	}
 	GetNodeInstance().crawl.AddRequest(req)
 	return nil
@@ -78,7 +79,7 @@ func (r *RpcServer) Distribute(req *UrlRequest) error {
 // request from slavers and store them to distribute
 func (r *RpcServer) ReportRequest(req *UrlRequest) error {
 	if !GetNodeInstance().IsMaster() {
-		return rpc.RpcError{"I am not the master, thank you!"}
+		return ErrNotMaster
 	}
 	GetClusterInstance().PushRequest(req)
 	return nil

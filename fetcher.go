@@ -5,6 +5,7 @@ import (
 	"net/http/cookiejar"
 	"sync"
 	"time"
+	"net/url"
 )
 
 // Fetcher is an executer doing some kind of job
@@ -75,20 +76,32 @@ func (f *Fetcher) Run() {
 // do the handle in goroutine, and push the response to the responsechan
 func (f *Fetcher) handle(req *UrlRequest) {
 	client := f.getClient(req)
-	request, err := http.NewRequest(req.method, req.url, nil)
+
+	// set proxy for this client
+	if req.Proxy != "" {
+		url, _ := url.Parse(req.Url)
+		client.Transport = &http.Transport{
+			Proxy: http.ProxyURL(url),
+		}
+	} else {
+		// use the default Transport
+		client.Transport = nil
+	}
+
+	request, err := http.NewRequest(req.Method, req.Url, nil)
 	if err != nil {
-		Error.Println("create request failed, ", err, req.url)
+		Error.Println("create request failed, ", err, req.Url)
 		return
 	}
 	response, err := client.Do(request)
 	if err != nil {
 		Error.Println("http request error, ", err)
-		if req.retry < f.retry {
+		if req.Retry < f.retry {
 			req.Incr()
 			f.pop.push(req)
 			return
 		} else {
-			Log.Println("dropped url: ", req.url)
+			Log.Println("dropped url: ", req.Url)
 		}
 	}
 	if response.StatusCode != 200 {
@@ -102,9 +115,9 @@ func (f *Fetcher) handle(req *UrlRequest) {
 		go f.store.Store(resp)
 	}
 	//Add the url to Redis, to mark as crawled
-	redisCli := GetRedisClient().GetClient(req.url)
-	redisCli.SAdd(KeyForCrawlByDay(), req.url)
-	if req.depth >= req.depth {
+	redisCli := GetRedisClient().GetClient(req.Url)
+	redisCli.SAdd(KeyForCrawlByDay(), req.Url)
+	if req.Depth >= req.Depth {
 		Log.Println("this request is reach the Max depth, so stop creating new requests")
 		return
 	}
@@ -114,7 +127,7 @@ func (f *Fetcher) handle(req *UrlRequest) {
 // this func will get the client by cookie of the request,
 // when not found, create one.
 func (f *Fetcher) getClient(req *UrlRequest) *http.Client {
-	cookie := req.cookieJar
+	cookie := req.CookieJar
 	var client *http.Client
 
 	f.cookieMu.Lock()

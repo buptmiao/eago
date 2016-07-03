@@ -22,14 +22,14 @@ ClusterName = "eagles"
 
 # the basic information of the local node.
 [Local]
-NodeName = "eagle"
-IP = "192.168.1.8"
+NodeName = "miao_shard1"
+IP = "192.168.1.12"
 Port = 12001
 
 # NodeList contains all the node info on the same network.
 [[NodeList]]
 NodeName = "eagle"
-IP = "127.0.0.1"
+IP = "192.168.1.8"
 Port = 12001
 
 [[NodeList]]

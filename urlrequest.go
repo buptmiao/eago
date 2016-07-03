@@ -1,29 +1,30 @@
 package eago
 
 type UrlRequest struct {
-	url       string
-	method    string
-	node      string
-	parser    string
-	insite    bool
-	cookieJar int
-	depth     int32
-	retry     int32
+	Url       string
+	Method    string
+	Node      string
+	Parser    string
+	Insite    bool
+	Proxy     string
+	CookieJar int
+	Depth     int32
+	Retry     int32
 }
 
 func NewUrlRequest(url, method, parser string, insite bool, depth, retry int32, cookie int) *UrlRequest {
 	res := &UrlRequest{
-		url:       url,
-		method:    method,
-		parser:    parser,
-		insite:    insite,
-		depth:     depth,
-		retry:     retry,
-		cookieJar: cookie,
+		Url:       url,
+		Method:    method,
+		Parser:    parser,
+		Insite:    insite,
+		Depth:     depth,
+		Retry:     retry,
+		CookieJar: cookie,
 	}
 	return res
 }
 
 func (ur *UrlRequest) Incr() {
-	ur.retry++
+	ur.Retry++
 }

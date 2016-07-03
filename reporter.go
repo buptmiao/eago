@@ -35,10 +35,10 @@ func (r *Reporter) Run() {
 func (r *Reporter) handle(reqs []*UrlRequest) {
 	for _, req := range reqs {
 		if GetNodeInstance().IsMaster() {
-			Log.Println("report the url to self: ", req.url)
+			Log.Println("report the url to self: ", req.Url)
 			GetClusterInstance().PushRequest(req)
 		} else {
-			Log.Println("[RPC] report the url to master: ", req.url)
+			Log.Println("[RPC] report the url to master: ", req.Url)
 			if err := GetNodeInstance().rpc.ReportRequest(req); err != nil {
 				Error.Println(err)
 				// push the req back to the pop chan.

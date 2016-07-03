@@ -47,7 +47,7 @@ func (e *Extractor) Run() {
 
 func (e *Extractor) handle(resp *UrlResponse) {
 	if _, ok := e.ParserMap[resp.parser]; !ok {
-		Error.Printf("the Parse Method is not defined for %s, url: %s", resp.parser, resp.src.url)
+		Error.Printf("the Parse Method is not defined for %s, url: %s", resp.parser, resp.src.Url)
 		return
 	}
 	urls := e.ParserMap[resp.parser](&resp.body)
@@ -56,25 +56,25 @@ func (e *Extractor) handle(resp *UrlResponse) {
 	if urls != nil {
 		newRequests := make([]*UrlRequest, 0, len(urls))
 		for _, url := range urls {
-			req := NewUrlRequest(url, resp.src.method, resp.parser, resp.src.insite, resp.src.depth+1, 0, resp.src.cookieJar)
+			req := NewUrlRequest(url, resp.src.Method, resp.parser, resp.src.Insite, resp.src.Depth+1, 0, resp.src.CookieJar)
 			newRequests = append(newRequests, req)
 		}
 		e.push.push(newRequests...)
-		Log.Println("New Urls: %d, from the src %s", len(newRequests), resp.src.url)
+		Log.Println("New Urls: %d, from the src %s", len(newRequests), resp.src.Url)
 	}
 }
 
 // this is the filter to filter the unreasonable and illegal urlrequests
 func (e *Extractor) filter(req *UrlRequest, urls []string) []string {
 	res := []string{}
-	srcurl, _ := url.Parse(req.url)
+	srcurl, _ := url.Parse(req.Url)
 	for _, v := range urls {
 		URL, err := url.Parse(v)
 		if err != nil {
 			Error.Println(err, " bad Url: ", v)
 			continue
 		}
-		if req.insite && srcurl.Host != URL.Host {
+		if req.Insite && srcurl.Host != URL.Host {
 			continue
 		}
 		//remove the url that have been crawled
