@@ -1,4 +1,6 @@
-# Eago [![Build Status](https://travis-ci.org/buptmiao/eago.svg?branch=master)](https://travis-ci.org/buptmiao/eago)
+# Eago 
+[![Build Status](https://travis-ci.org/buptmiao/eago.svg?branch=master)](https://travis-ci.org/buptmiao/eago)
+![License](https://img.shields.io/dub/l/vibe-d.svg)
 An easy distributed and restful crawler framework
 
 ## Installation
