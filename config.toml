@@ -1,13 +1,6 @@
 # This file contains an overview of various configuration settings
 #
 
-CrawlerName = "crawler"
-Urls = []
-Depth = 5
-InSite = true
-TimeOut = 5
-TTL = 2
-Retry=3
 HttpPort = 12002
 
 #For authorization by using REST api, this function is disabled by default.

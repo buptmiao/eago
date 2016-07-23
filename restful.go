@@ -2,8 +2,9 @@ package eago
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -87,7 +88,7 @@ func StopCrawler(c *gin.Context) {
 		Response(c, AuthFailed)
 		return
 	}
-	GetNodeInstance().crawl.Stop()
+	GetNodeInstance().Stop()
 	Response(c, StopSuccess)
 }
 
@@ -96,7 +97,7 @@ func StartCrawler(c *gin.Context) {
 		Response(c, AuthFailed)
 		return
 	}
-	GetNodeInstance().crawl.Start()
+	GetNodeInstance().Start()
 	Response(c, StartSuccess)
 }
 
@@ -105,7 +106,7 @@ func RestartCrawler(c *gin.Context) {
 		Response(c, AuthFailed)
 		return
 	}
-	GetNodeInstance().crawl.Restart()
+	GetNodeInstance().Restart()
 	Response(c, StartSuccess)
 }
 

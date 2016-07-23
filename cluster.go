@@ -103,7 +103,7 @@ func (c *Cluster) Discover() {
 func (c *Cluster) BecomeMaster() {
 	c.Master = c.Local.Info
 	Log.Println("The Master is ", *c.Master)
-	Stat.SetClusterName(c.ClusterName).SetMaster(c.Master).SetCrawlerName(Configs.CrawlerName)
+	Stat.SetClusterName(c.ClusterName).SetMaster(c.Master)
 	c.StartKeeper()
 	c.StartDistributor()
 }
@@ -191,7 +191,7 @@ func (c *Cluster) BecomeSlaver() {
 		c.ResetTimer()
 	}
 	go c.MonitorMaster()
-	GetNodeInstance().crawl.Restart()
+	GetNodeInstance().Restart()
 }
 
 func (c *Cluster) ResetTimer() {
@@ -217,5 +217,5 @@ func (c *Cluster) StopTheWorld() {
 		c.StopDistributor()
 		c.StopKeeper()
 	}
-	GetNodeInstance().crawl.Stop()
+	GetNodeInstance().Stop()
 }

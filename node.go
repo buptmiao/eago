@@ -25,7 +25,21 @@ func NewNodeInfo(name string, ip string, port uint16) *NodeInfo {
 type Node struct {
 	Info  *NodeInfo
 	rpc   *RpcClient
-	crawl *Crawler
+	crawl map[string]*Crawler
+
+	// req is the UrlRequest buffer for current node to fetch the
+	// content with minimal blocking
+	req RequestChan
+	// resp is the UrlResponse buffer for current node to extract
+	// the new urls with minimal blocking
+	resp ResponseChan
+	// upload is the UrlRequest buffer for current node to report
+	// the urls to cluster's mster node.
+	upload RequestChan
+	// three kinds of workers
+	fetch   *Fetcher
+	extract *Extractor
+	report  *Reporter
 }
 
 // Every Node has a DefaultNode.Singleton
@@ -38,10 +52,18 @@ func GetNodeInstance() *Node {
 }
 
 func NewNode() {
-	res := &Node{}
-	res.Info = Configs.Local
-	res.rpc = NewRpcClient()
-	res.crawl = NewCrawler(Configs.CrawlerName, Configs.Urls, Configs.Depth, Configs.InSite, Configs.TimeOut, Configs.TTL, Configs.Retry)
+	res := &Node{
+		Info:   Configs.Local,
+		rpc:    NewRpcClient(),
+		req:    NewRequestChan(),
+		resp:   NewResponseChan(),
+		upload: NewRequestChan(),
+		crawl:  make(map[string]*Crawler),
+	}
+	res.fetch = NewFetcher(res.req, res.resp)
+	res.extract = NewExtractor(res.resp, res.upload)
+	res.report = NewReporter(res.upload)
+	//	res.crawl[Configs.CrawlerName] = NewCrawler(Configs.CrawlerName, Configs.Urls, Configs.Depth, Configs.InSite, Configs.TimeOut, Configs.TTL, Configs.Retry)
 	DefaultNode = res
 }
 
@@ -67,7 +89,49 @@ func (n *Node) GetStatistic() (*Statistic, error) {
 	return stat, nil
 }
 
-// To customize the storage strategy.
-func (n *Node) SetStorage(st Storer) {
-	n.crawl.fetch.SetStorage(st)
+func (n *Node) AddCrawler(c *Crawler) {
+	n.crawl[c.Name] = c
+}
+
+func (n *Node) RemCrawler(name string) {
+	delete(n.crawl, name)
+}
+
+func (n *Node) GetCrawler(name string) *Crawler {
+	crawler, ok := n.crawl[name]
+	if !ok {
+		panic("crawler not found:" + name)
+		return nil
+	}
+	return crawler
+}
+
+func (n *Node) AddRequest(req *UrlRequest) {
+	Log.Println("add request to fetcher: ", req.Url)
+	//
+	Stat.AddTotalCount(req.Crawler)
+	n.req.push(req)
+}
+
+func (n *Node) Start() {
+	Log.Println("Start the crawler...")
+	Stat.BeginNow()
+	go n.fetch.Run()
+	go n.extract.Run()
+	go n.report.Run()
+}
+
+func (n *Node) Stop() {
+	Log.Println("Stop the crawler...")
+	Stat.Stop()
+	n.fetch.Stop()
+	n.extract.Stop()
+	n.report.Stop()
+}
+
+func (n *Node) Restart() {
+	Log.Println("Restart the crawler...")
+	n.fetch.Restart()
+	n.extract.Restart()
+	n.report.Restart()
 }

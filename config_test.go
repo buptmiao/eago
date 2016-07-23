@@ -1,18 +1,12 @@
 package eago
 
 import (
-	"github.com/BurntSushi/toml"
 	"testing"
+
+	"github.com/BurntSushi/toml"
 )
 
 const TestConfig = `
-CrawlerName = "crawler"
-Urls = []
-Depth = 5
-InSite = true
-TimeOut = 5
-TTL = 2
-Retry=3
 HttpPort = 12002
 
 Auth=false
@@ -50,19 +44,13 @@ Port = 12003
 func LoadTestConfig() {
 	LogInit()
 	_, err := toml.Decode(TestConfig, Configs)
-	AssertNil(err)
+	AssertErrNil(err)
 	ArbitrateConfigs(Configs)
 }
 
 func TestLoadTestConfig(t *testing.T) {
 	LoadTestConfig()
-	AssertEqual(Configs.CrawlerName == "crawler")
-	AssertEqual(len(Configs.Urls) == 0)
-	AssertEqual(Configs.Depth == 5)
-	AssertEqual(Configs.InSite)
-	AssertEqual(Configs.TimeOut == 5)
-	AssertEqual(Configs.TTL == 2)
-	AssertEqual(Configs.Retry == 3)
+
 	AssertEqual(Configs.HttpPort == 12002)
 	AssertEqual(Configs.Auth == false)
 	AssertEqual(Configs.UserName == "")

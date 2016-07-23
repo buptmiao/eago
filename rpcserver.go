@@ -71,7 +71,7 @@ func (r *RpcServer) Distribute(req *UrlRequest) error {
 	if req.Node != GetNodeInstance().Info.NodeName {
 		return ErrDistributeUrl
 	}
-	GetNodeInstance().crawl.AddRequest(req)
+	GetNodeInstance().AddRequest(req)
 	return nil
 }
 

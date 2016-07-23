@@ -3,22 +3,17 @@ package eago
 import (
 	"net/http"
 	"net/http/cookiejar"
+	"net/url"
+	"strings"
 	"sync"
 	"time"
-	"net/url"
 )
 
 // Fetcher is an executer doing some kind of job
 type Fetcher struct {
 	status string
-	// timeout defines the max waiting time for per request
-	timeout int32
-	// ttl is the interval between two requests
-	ttl int32
-	// this channel can stop the Fetcher
-	stop  chan struct{}
-	depth int32
-	retry int32
+
+	stop chan struct{}
 	// It is a stacked channel from which the Fetcher pop UrlRequests
 	// see http://gowithconfidence.tumblr.com/post/31426832143/stacked-channels
 	pop RequestChan
@@ -30,17 +25,11 @@ type Fetcher struct {
 	clientMap map[int]*http.Client
 	// to protect clientMap
 	cookieMu *sync.Mutex
-	// store defines the store strategy of the response
-	store Storer
 }
 
-func NewFetcher(to, ttl, depth, retry int32, stop chan struct{}, in chan []*UrlRequest, out chan []*UrlResponse) *Fetcher {
+func NewFetcher(in chan []*UrlRequest, out chan []*UrlResponse) *Fetcher {
 	res := &Fetcher{
 		status:    STOP,
-		timeout:   to,
-		ttl:       ttl,
-		depth:     depth,
-		retry:     retry,
 		stop:      make(chan struct{}),
 		pop:       in,
 		push:      out,
@@ -64,7 +53,8 @@ func (f *Fetcher) Run() {
 			return
 		case reqs := <-f.pop:
 			for _, req := range reqs {
-				ttl := time.After(time.Second * time.Duration(f.ttl))
+				crawler := GetNodeInstance().GetCrawler(req.Crawler)
+				ttl := time.After(time.Second * time.Duration(crawler.TTL))
 				// handle the req in goroutine
 				go f.handle(req)
 				<-ttl
@@ -75,8 +65,9 @@ func (f *Fetcher) Run() {
 
 // do the handle in goroutine, and push the response to the responsechan
 func (f *Fetcher) handle(req *UrlRequest) {
+	// get the crawler of the req, if not found return.
+	crawler := GetNodeInstance().GetCrawler(req.Crawler)
 	client := f.getClient(req)
-
 	// set proxy for this client
 	if req.Proxy != "" {
 		url, _ := url.Parse(req.Url)
@@ -88,7 +79,7 @@ func (f *Fetcher) handle(req *UrlRequest) {
 		client.Transport = nil
 	}
 
-	request, err := http.NewRequest(req.Method, req.Url, nil)
+	request, err := http.NewRequest(req.Method, req.Url, strings.NewReader(req.Params))
 	if err != nil {
 		Error.Println("create request failed, ", err, req.Url)
 		return
@@ -96,7 +87,7 @@ func (f *Fetcher) handle(req *UrlRequest) {
 	response, err := client.Do(request)
 	if err != nil {
 		Error.Println("http request error, ", err)
-		if req.Retry < f.retry {
+		if req.Retry < crawler.Retry {
 			req.Incr()
 			f.pop.push(req)
 			return
@@ -111,13 +102,13 @@ func (f *Fetcher) handle(req *UrlRequest) {
 	resp := NewResponse(req, response)
 
 	// store the resp body
-	if f.store != nil {
-		go f.store.Store(resp)
+	if crawler.store != nil {
+		go crawler.store.Store(resp)
 	}
 	//Add the url to Redis, to mark as crawled
 	redisCli := GetRedisClient().GetClient(req.Url)
 	redisCli.SAdd(KeyForCrawlByDay(), req.Url)
-	if req.Depth >= req.Depth {
+	if req.Depth >= crawler.Depth {
 		Log.Println("this request is reach the Max depth, so stop creating new requests")
 		return
 	}
@@ -129,13 +120,13 @@ func (f *Fetcher) handle(req *UrlRequest) {
 func (f *Fetcher) getClient(req *UrlRequest) *http.Client {
 	cookie := req.CookieJar
 	var client *http.Client
-
 	f.cookieMu.Lock()
 	if _, ok := f.clientMap[cookie]; !ok {
 		jar, _ := cookiejar.New(nil)
+		crawler := GetNodeInstance().GetCrawler(req.Crawler)
 		f.clientMap[cookie] = &http.Client{
 			Jar:     jar,
-			Timeout: time.Second * time.Duration(f.timeout),
+			Timeout: time.Second * time.Duration(crawler.Timeout),
 		}
 	}
 	client = f.clientMap[cookie]
@@ -161,11 +152,6 @@ func (f *Fetcher) Stop() {
 func (f *Fetcher) Restart() {
 	f.stop = make(chan struct{})
 	go f.Run()
-}
-
-// use the custom storage strategy
-func (f *Fetcher) SetStorage(st Storer) {
-	f.store = st
 }
 
 func (f *Fetcher) Status() string {

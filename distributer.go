@@ -40,7 +40,7 @@ func (r *Distributor) handle(reqs []*UrlRequest) {
 		// check if the req's node name is local node
 		if GetNodeInstance().Info.NodeName == req.Node {
 			Log.Println("distribute the url to self: ", req.Url)
-			GetNodeInstance().crawl.req.push(req)
+			GetNodeInstance().AddRequest(req)
 		} else {
 			Log.Println("[RPC] distribute the url to ", req.Node, ". url:", req.Url)
 			GetNodeInstance().rpc.Distribute(req)

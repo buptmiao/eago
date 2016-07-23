@@ -6,8 +6,8 @@ import (
 )
 
 // You can customize the storage strategy in your application
-// by implementing the interface Storer
-type Storer interface {
+// by implementing the interface Storage
+type Storage interface {
 	Store(resp *UrlResponse)
 }
 
@@ -33,8 +33,10 @@ func NewDefaultStore(r *RedisClient) *DefaultStore {
 }
 
 func (d *DefaultStore) Store(resp *UrlResponse) {
-	url := resp.src.Url
+	url := resp.Src.Url
 	client := d.GetClient(url)
-	client.Set(KeyForUrlStore(url), resp.body, 0)
+	key := KeyForUrlStore(url)
+	client.Set(key, resp.Body, 0)
+	client.Expire(key, Expiration)
 	return
 }

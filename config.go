@@ -3,21 +3,14 @@ package eago
 import (
 	"flag"
 	"fmt"
-	"github.com/BurntSushi/toml"
 	"io/ioutil"
 	"os"
+
+	"github.com/BurntSushi/toml"
 )
 
 type config struct {
 	HttpPort uint16
-	// The Crawler Name
-	CrawlerName string
-	Urls        []string
-	Depth       int32
-	InSite      bool
-	TimeOut     int32
-	TTL         int32
-	Retry       int32
 
 	Auth     bool
 	UserName string
@@ -76,17 +69,6 @@ func ArbitrateConfigs(c *config) {
 	if c.HttpPort == 0 {
 		c.HttpPort = 12002
 	}
-	if c.CrawlerName == "" {
-		c.CrawlerName = "crawler"
-	}
-	if c.Depth == 0 {
-		c.Depth = 1
-	}
-	if c.TimeOut == 0 {
-		c.TimeOut = 3
-	}
-	if c.Retry == 0 {
-		c.Retry = 2
-	}
+
 	Log.Println("Load config file success!")
 }

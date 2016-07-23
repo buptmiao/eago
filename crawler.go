@@ -21,73 +21,49 @@ type Crawler struct {
 	Retry int32
 	// TTL is the interval of two urls to fetch using by fetch
 	TTL int32
-	// req is the UrlRequest buffer for current node to fetch the
-	// content with minimal blocking
-	req RequestChan
-	// resp is the UrlResponse buffer for current node to extract
-	// the new urls with minimal blocking
-	resp ResponseChan
-	// upload is the UrlRequest buffer for current node to report
-	// the urls to cluster's mster node.
-	upload RequestChan
-	// three kinds of workers
-	fetch   *Fetcher
-	extract *Extractor
-	report  *Reporter
+	// store defines the store strategy of the response
+	store         Storage
+	ParserMap     map[string]Parser
+	start_request func() []*UrlRequest
+	// some extra data
+	MetaData map[string]interface{}
 }
 
 func NewCrawler(name string, urls []string, depth int32, inSite bool, to int32, ttl int32, retry int32) *Crawler {
 	res := &Crawler{
-		Name:     name,
-		SeedUrls: urls,
-		Depth:    depth,
-		InSite:   inSite,
-		Retry:    retry,
-		Timeout:  to,
-		TTL:      ttl,
-		req:      NewRequestChan(),
-		resp:     NewResponseChan(),
-		upload:   NewRequestChan(),
+		Name:      name,
+		SeedUrls:  urls,
+		Depth:     depth,
+		InSite:    inSite,
+		Retry:     retry,
+		Timeout:   to,
+		TTL:       ttl,
+		ParserMap: make(map[string]Parser),
 	}
-	res.fetch = NewFetcher(res.Timeout, res.TTL, res.Depth, res.Retry, make(chan struct{}), res.req, res.resp)
-	res.extract = NewExtractor(res.resp, res.upload)
-	res.report = NewReporter(res.upload)
 	return res
 }
 
-func (c *Crawler) Register(url, method, parseName, proxy string, p Parser) *UrlRequest {
-	c.extract.ParserMap[parseName] = p
-	res := NewUrlRequest(url, method, parseName,proxy, c.InSite, 0, 0, 0)
-	return res
+func (c *Crawler) GetParser(name string) Parser {
+	parser, ok := c.ParserMap[name]
+	if !ok {
+		panic("crawler not found:" + name)
+		return nil
+	}
+	return parser
 }
 
-func (c *Crawler) AddRequest(req *UrlRequest) {
-	Log.Println("add request to fetcher: ", req.Url)
-	//
-	Stat.AddTotalCount()
-	c.req.push(req)
+func (c *Crawler) AddParser(name string, p Parser) *Crawler {
+	c.ParserMap[name] = p
+	return c
 }
 
-func (c *Crawler) Start() {
-	Log.Println("Start the crawler...")
-	Stat.BeginNow()
-	go c.fetch.Run()
-	go c.extract.Run()
-	go c.report.Run()
-
+// To customize the storage strategy.
+func (c *Crawler) SetStorage(st Storage) *Crawler {
+	c.store = st
+	return c
 }
 
-func (c *Crawler) Stop() {
-	Log.Println("Stop the crawler...")
-	Stat.Stop()
-	c.fetch.Stop()
-	c.extract.Stop()
-	c.report.Stop()
-}
-
-func (c *Crawler) Restart() {
-	Log.Println("Restart the crawler...")
-	c.fetch.Restart()
-	c.extract.Restart()
-	c.report.Restart()
+func (c *Crawler) StartWith(call func() []*UrlRequest) *Crawler {
+	c.start_request = call
+	return c
 }

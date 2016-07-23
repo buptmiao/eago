@@ -6,18 +6,15 @@ import (
 )
 
 type UrlResponse struct {
-	src    *UrlRequest
-	resp   *http.Response
-	parser string
-
-	body string
+	Src  *UrlRequest
+	Resp *http.Response
+	Body string
 }
 
 func NewResponse(req *UrlRequest, resp *http.Response) *UrlResponse {
 	res := &UrlResponse{
-		src:    req,
-		resp:   resp,
-		parser: req.Parser,
+		Src:  req,
+		Resp: resp,
 	}
 	if resp != nil {
 		body, err := ioutil.ReadAll(resp.Body)
@@ -27,7 +24,7 @@ func NewResponse(req *UrlRequest, resp *http.Response) *UrlResponse {
 			return nil
 		}
 		// success, set body
-		res.body = string(body)
+		res.Body = string(body)
 	} else {
 		Error.Println("bad response nil", req.Url)
 		return nil

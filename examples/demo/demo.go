@@ -10,9 +10,6 @@ func main() {
 	node := eago.GetNodeInstance()
 	cluster := eago.GetClusterInstance()
 
-	store := eago.NewDefaultStore(eago.GetRedisClient())
-	node.SetStorage(store)
-
 	eago.NewRpcServer().Start()
 	// Descover will Block the execution, until a master node
 	// is found, or become master itself.

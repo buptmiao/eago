@@ -10,24 +10,34 @@ import (
 // used by restful api to monitor current state of the crawler
 type CrawlerStatistic struct {
 	Name               string `json:"CrawlerName"`
-	Running            bool   `json:"Running"`
 	CrawledUrlsCount   uint64 `json:"CrawledUrlsCount"`
 	TotalCount         uint64 `json:"TotalUrlsCount"`
 	ToCrawledUrlsCount uint64 `json:"ToCrawledUrlsCount"`
-	BeginAt            string `json:"Begin At"`
-	Elapse             string `json:"Elapse"`
+}
+
+func NewCrawlerStatistic(name string) *CrawlerStatistic {
+	res := &CrawlerStatistic{
+		Name:               name,
+		CrawledUrlsCount:   0,
+		TotalCount:         0,
+		ToCrawledUrlsCount: 0,
+	}
+	return res
 }
 
 // The statistic information of the cluster, it will be updated by
 // the master node, when the slavers need it, they must call the
 // Rpc SyncStatistic to sync this.
 type Statistic struct {
-	ClusterName string           `json:"ClusterName"`
-	NodeNum     int              `json:"NodeNumber"`
-	Master      *NodeInfo        `json:"Master"`
-	Slavers     []*SlaverStatus  `json:"slavers"`
-	Crawler     CrawlerStatistic `json:"CrawlerStatistics"`
-	Message     string           `json:"Message"`
+	ClusterName string                       `json:"ClusterName"`
+	Running     bool                         `json:"Running"`
+	BeginAt     string                       `json:"Begin At"`
+	Elapse      string                       `json:"Elapse"`
+	NodeNum     int                          `json:"NodeNumber"`
+	Master      *NodeInfo                    `json:"Master"`
+	Slavers     []*SlaverStatus              `json:"slavers"`
+	Crawler     map[string]*CrawlerStatistic `json:"CrawlerStatistics"`
+	Message     string                       `json:"Message"`
 }
 
 type SlaverStatus struct {
@@ -46,37 +56,44 @@ func NewStatistic() *Statistic {
 		ClusterName: Configs.ClusterName,
 		NodeNum:     1,
 		Message:     Message,
-		Crawler: CrawlerStatistic{
-			Name: Configs.CrawlerName,
-		},
+		Crawler:     make(map[string]*CrawlerStatistic),
 	}
 	return res
 }
 
 // record current time at which the crawler begin
 func (s *Statistic) BeginNow() *Statistic {
-	s.Crawler.Running = true
-	s.Crawler.BeginAt = time.Now().Format("2006-01-02 15:04:05")
+	s.Running = true
+	s.BeginAt = time.Now().Format("2006-01-02 15:04:05")
 	return s
 }
 
 func (s *Statistic) Stop() *Statistic {
-	s.Crawler.Running = false
-	begin, err := time.ParseInLocation("2006-01-02 15:04:05", s.Crawler.BeginAt, time.Local)
+	s.Running = false
+	begin, err := time.ParseInLocation("2006-01-02 15:04:05", s.BeginAt, time.Local)
 	if err != nil {
 		Error.Println("parse time failed, Crawler has not been started ever")
-		Stat.Crawler.Elapse = ""
+		Stat.Elapse = ""
 		return s
 	}
 	elapse := float64(time.Since(begin)/1e6) / float64(1e3)
-	s.Crawler.Elapse = fmt.Sprintf("%.2f secs", elapse)
+	s.Elapse = fmt.Sprintf("%.2f secs", elapse)
 	return s
 }
 
-// not used
-func (s *Statistic) SetCrawlerName(name string) *Statistic {
-	s.Crawler.Name = name
+func (s *Statistic) AddCrawlerStatistic(name string) *Statistic {
+	cs := NewCrawlerStatistic(name)
+	s.Crawler[name] = cs
 	return s
+}
+
+func (s *Statistic) GetCrawlerStatistic(name string) *CrawlerStatistic {
+	res, ok := s.Crawler[name]
+	if !ok {
+		panic("crawler statistic not found" + name)
+		return nil
+	}
+	return res
 }
 
 func (s *Statistic) SetMaster(Node *NodeInfo) *Statistic {
@@ -115,12 +132,14 @@ func (s *Statistic) SetClusterName(name string) *Statistic {
 	return s
 }
 
-func (s *Statistic) AddTotalCount() {
-	atomic.AddUint64(&Stat.Crawler.TotalCount, 1)
+func (s *Statistic) AddTotalCount(name string) {
+	cs := s.GetCrawlerStatistic(name)
+	atomic.AddUint64(&cs.TotalCount, 1)
 }
 
-func (s *Statistic) AddCrawledCount() {
-	atomic.AddUint64(&Stat.Crawler.CrawledUrlsCount, 1)
+func (s *Statistic) AddCrawledCount(name string) {
+	cs := s.GetCrawlerStatistic(name)
+	atomic.AddUint64(&cs.CrawledUrlsCount, 1)
 }
 
 // Get the current info of the crawler cluster, this will always invoked
@@ -129,17 +148,17 @@ func (s *Statistic) GetStatistic() *Statistic {
 	// copy one to avoid data race
 	stat := *s
 	// If the Crawler is not running, return stat directly.
-	if !s.Crawler.Running {
+	if !s.Running {
 		return &stat
 	}
 
-	begin, err := time.ParseInLocation("2006-01-02 15:04:05", stat.Crawler.BeginAt, time.Local)
+	begin, err := time.ParseInLocation("2006-01-02 15:04:05", stat.BeginAt, time.Local)
 	if err != nil {
 		Error.Println("parse time failed, Crawler has not been started ever")
-		Stat.Crawler.Elapse = ""
+		Stat.Elapse = ""
 		return &stat
 	}
 	elapse := float64(time.Since(begin)/1e6) / float64(1e3)
-	stat.Crawler.Elapse = fmt.Sprintf("%.2f secs", elapse)
+	stat.Elapse = fmt.Sprintf("%.2f secs", elapse)
 	return &stat
 }

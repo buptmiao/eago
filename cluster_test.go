@@ -34,7 +34,7 @@ func TestCluster_AddNode(t *testing.T) {
 		AssertEqual(st)
 	}
 	v, err := GetClusterInstance().hash.Get("*****")
-	AssertNil(err)
+	AssertErrNil(err)
 	AssertEqual(v == "testone")
 }
 

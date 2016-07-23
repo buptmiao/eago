@@ -4,23 +4,21 @@ import (
 	"net/url"
 )
 
-type Parser func(body *string) (urls []string)
+type Parser func(resp *UrlResponse) (urls []*UrlRequest)
 
 type Extractor struct {
-	status    string
-	stop      chan struct{}
-	pop       ResponseChan
-	push      RequestChan
-	ParserMap map[string]Parser
+	status string
+	stop   chan struct{}
+	pop    ResponseChan
+	push   RequestChan
 }
 
 func NewExtractor(in ResponseChan, out RequestChan) *Extractor {
 	res := &Extractor{
-		status:    STOP,
-		stop:      make(chan struct{}),
-		pop:       in,
-		push:      out,
-		ParserMap: make(map[string]Parser),
+		status: STOP,
+		stop:   make(chan struct{}),
+		pop:    in,
+		push:   out,
 	}
 	return res
 }
@@ -38,7 +36,7 @@ func (e *Extractor) Run() {
 		case resps := <-e.pop:
 			for _, resp := range resps {
 
-				// handle the resp in goroutine
+				// handle the resp in go routine
 				go e.handle(resp)
 			}
 		}
@@ -46,40 +44,34 @@ func (e *Extractor) Run() {
 }
 
 func (e *Extractor) handle(resp *UrlResponse) {
-	if _, ok := e.ParserMap[resp.parser]; !ok {
-		Error.Printf("the Parse Method is not defined for %s, url: %s", resp.parser, resp.src.Url)
-		return
-	}
-	urls := e.ParserMap[resp.parser](&resp.body)
+	crawler := GetNodeInstance().GetCrawler(resp.Src.Crawler)
+	parser := crawler.GetParser(resp.Src.Parser)
+	urls := parser(resp)
 	// to filter the urls
-	urls = e.filter(resp.src, urls)
-	if urls != nil {
-		newRequests := make([]*UrlRequest, 0, len(urls))
-		for _, url := range urls {
-			req := NewUrlRequest(url, resp.src.Method, resp.parser, resp.src.Proxy, resp.src.Insite, resp.src.Depth+1, 0, resp.src.CookieJar)
-			newRequests = append(newRequests, req)
-		}
-		e.push.push(newRequests...)
-		Log.Println("New Urls: %d, from the src %s", len(newRequests), resp.src.Url)
+	urls = e.filter(resp.Src, urls)
+	if len(urls) > 0 {
+		e.push.push(urls...)
+		Log.Printf("New Urls: %d, from the src %s", len(urls), resp.Src.Url)
 	}
 }
 
 // this is the filter to filter the unreasonable and illegal urlrequests
-func (e *Extractor) filter(req *UrlRequest, urls []string) []string {
-	res := []string{}
-	srcurl, _ := url.Parse(req.Url)
+func (e *Extractor) filter(req *UrlRequest, urls []*UrlRequest) []*UrlRequest {
+	res := []*UrlRequest{}
+	src, _ := url.Parse(req.Url)
+	crawler := GetNodeInstance().GetCrawler(req.Crawler)
 	for _, v := range urls {
-		URL, err := url.Parse(v)
+		URL, err := url.Parse(v.Url)
 		if err != nil {
 			Error.Println(err, " bad Url: ", v)
 			continue
 		}
-		if req.Insite && srcurl.Host != URL.Host {
+		if crawler.InSite && src.Host != URL.Host {
 			continue
 		}
 		//remove the url that have been crawled
-		client := GetRedisClient().GetClient(v)
-		if client.SIsMember(KeyForCrawlByDay(), v).Val() {
+		client := GetRedisClient().GetClient(v.Url)
+		if client.SIsMember(KeyForCrawlByDay(), v.Url).Val() {
 			continue
 		}
 		res = append(res, v)
