@@ -10,6 +10,7 @@ Before install eago, you should install these dependencies
     go get github.com/gin-gonic/gin
     go get gopkg.in/redis.v3
     go get github.com/BurntSushi/toml
+    go get gopkg.in/iconv.v1
 
 Install:
 
@@ -67,22 +68,17 @@ Response:
 ```
     {
         "ClusterName": "eagles",
+        "Running": false,
+        "Begin At": "",
+        "Elapse": "",
         "NodeNumber": 1,
         "Master": {
-            "NodeName": "eagle",
-            "IP": "127.0.0.1",
+            "NodeName": "miao_shard1",
+            "IP": "192.168.1.12",
             "Port": 12001
         },
         "slavers": null,
-        "CrawlerStatistics": {
-            "CrawlerName": "crawler",
-            "Running": true,
-            "CrawledUrlsCount": 0,
-            "TotalUrlsCount": 0,
-            "ToCrawledUrlsCount": 0,
-            "Begin At": "2016-06-18 19:48:18",
-            "Elapse": "289.43 secs"
-        },
+        "CrawlerStatistics": {},
         "Message": "You know, for data"
     }
 ```
