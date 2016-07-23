@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/buptmiao/eago"
-	"net/url"
 	"log"
+	"net/url"
+
+	"github.com/buptmiao/eago"
 	"gopkg.in/iconv.v1"
 )
 
@@ -16,9 +17,9 @@ func ByrbbsParser(resp *eago.UrlResponse) (urls []*eago.UrlRequest) {
 	defer cd.Close()
 	out := make([]byte, len(resp.Body))
 
-	a,_,c := cd.Conv([]byte(resp.Body), out)
+	a, _, c := cd.Conv([]byte(resp.Body), out)
 
-	log.Println(string(a),"\n",len(a),c)
+	log.Println(string(a), "\n", len(a), c)
 
 	return nil
 }
@@ -30,8 +31,8 @@ func main() {
 	cluster := eago.GetClusterInstance()
 	crawler := eago.NewCrawler("byrbbs", nil, 1, true, 5, 0, 2)
 	params := url.Values{}
-	params.Set("id", "inaadversity")
-	params.Set("passwd", "362622365")
+	params.Set("id", "")
+	params.Set("passwd", "")
 	params.Set("mode", "0")
 	params.Set("CookieDate", "0")
 	store := eago.NewDefaultStore(eago.GetRedisClient())

@@ -41,9 +41,6 @@ func main() {
 	eago.LoadConfig()
 	node := eago.GetNodeInstance()
 	cluster := eago.GetClusterInstance()
-    // store the web page into redis by default.
-	store := eago.NewDefaultStore(eago.GetRedisClient())
-	node.SetStorage(store)
 
 	eago.NewRpcServer().Start()
 	// Descover will Block the execution, until a master node
