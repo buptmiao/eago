@@ -27,7 +27,6 @@ type config struct {
 var Configs = new(config)
 
 func LoadConfig() {
-	LogInit()
 	var configFile string
 
 	// todo the default config Path

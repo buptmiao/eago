@@ -42,7 +42,6 @@ Port = 12003
     Pool=5`
 
 func LoadTestConfig() {
-	LogInit()
 	_, err := toml.Decode(TestConfig, Configs)
 	AssertErrNil(err)
 	ArbitrateConfigs(Configs)

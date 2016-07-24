@@ -11,7 +11,7 @@ var (
 	Error *log.Logger
 )
 
-func LogInit() {
+func init() {
 	format := log.Ldate | log.Ltime | log.Lshortfile
 	Debug = log.New(os.Stdout, "[DEBUG]: ", format)
 	Log = log.New(os.Stdout, "[INFO]: ", format)
