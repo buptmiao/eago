@@ -67,6 +67,10 @@ func NewNode() {
 	DefaultNode = res
 }
 
+func (n *Node) GetName() string {
+	return n.Info.NodeName
+}
+
 func (n *Node) IsMaster() bool {
 	// If the local node info is equal to master node
 
@@ -91,10 +95,12 @@ func (n *Node) GetStatistic() (*Statistic, error) {
 
 func (n *Node) AddCrawler(c *Crawler) {
 	n.crawl[c.Name] = c
+	Stat.AddCrawlerStatistic(c.Name)
 }
 
 func (n *Node) RemCrawler(name string) {
 	delete(n.crawl, name)
+	Stat.RemCrawlerStatistic(name)
 }
 
 func (n *Node) GetCrawler(name string) *Crawler {
@@ -116,6 +122,12 @@ func (n *Node) AddRequest(req *UrlRequest) {
 func (n *Node) Start() {
 	Log.Println("Start the crawler...")
 	Stat.BeginNow()
+
+	for _, v := range n.crawl {
+		for _, req := range v.start_request() {
+			n.AddRequest(req)
+		}
+	}
 	go n.fetch.Run()
 	go n.extract.Run()
 	go n.report.Run()

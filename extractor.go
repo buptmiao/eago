@@ -50,6 +50,9 @@ func (e *Extractor) handle(resp *UrlResponse) {
 	// to filter the urls
 	urls = e.filter(resp.Src, urls)
 	if len(urls) > 0 {
+		for _, url := range urls {
+			url.Node = resp.Src.Node
+		}
 		e.push.push(urls...)
 		Log.Printf("New Urls: %d, from the src %s", len(urls), resp.Src.Url)
 	}

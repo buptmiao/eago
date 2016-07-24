@@ -25,22 +25,67 @@ type Crawler struct {
 	store         Storage
 	ParserMap     map[string]Parser
 	start_request func() []*UrlRequest
-	// some extra data
+	// some extra data for http request, such as Header and PostForm
 	MetaData map[string]interface{}
 }
 
-func NewCrawler(name string, urls []string, depth int32, inSite bool, to int32, ttl int32, retry int32) *Crawler {
+// NewCrawler return a pointer to a Crawler object.
+// by default:
+// 		Depth:     1,
+//		InSite:    true,
+//		Retry:     3,
+//		Timeout:   5,
+//		TTL:       0,
+// these params can be set by methods of the crawler.
+
+func NewCrawler(name string) *Crawler {
 	res := &Crawler{
 		Name:      name,
-		SeedUrls:  urls,
-		Depth:     depth,
-		InSite:    inSite,
-		Retry:     retry,
-		Timeout:   to,
-		TTL:       ttl,
+		SeedUrls:  make([]string, 1),
+		Depth:     1,
+		InSite:    true,
+		Retry:     3,
+		Timeout:   5,
+		TTL:       0,
 		ParserMap: make(map[string]Parser),
 	}
 	return res
+}
+
+// Set the Urls of the crawler
+func (c *Crawler) AddSeedUrls(urls ...string) *Crawler {
+	c.SeedUrls = append(c.SeedUrls, urls...)
+	return c
+}
+
+// Set the depth of the crawler
+func (c *Crawler) SetDepth(depth int32) *Crawler {
+	c.Depth = depth
+	return c
+}
+
+// Set the InsSite of the crawler
+func (c *Crawler) SetInSite(inSite bool) *Crawler {
+	c.InSite = inSite
+	return c
+}
+
+// Set the Timeout of the crawler
+func (c *Crawler) SetTimeout(to int32) *Crawler {
+	c.Timeout = to
+	return c
+}
+
+// Set the TTL of the crawler
+func (c *Crawler) SetTTL(ttl int32) *Crawler {
+	c.TTL = ttl
+	return c
+}
+
+// Set the Retry of the crawler
+func (c *Crawler) SetRetry(retry int32) *Crawler {
+	c.Retry = retry
+	return c
 }
 
 func (c *Crawler) GetParser(name string) Parser {
@@ -66,4 +111,18 @@ func (c *Crawler) SetStorage(st Storage) *Crawler {
 func (c *Crawler) StartWith(call func() []*UrlRequest) *Crawler {
 	c.start_request = call
 	return c
+}
+
+func (c *Crawler) SetParam(key string, value interface{}) *Crawler {
+	c.MetaData[key] = value
+	return c
+}
+
+func (c *Crawler) GetParam(key string) interface{} {
+	res, ok := c.MetaData[key]
+	if !ok {
+		panic("key not found")
+		return nil
+	}
+	return res
 }

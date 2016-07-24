@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
-	"strings"
 	"sync"
 	"time"
 )
@@ -78,8 +77,9 @@ func (f *Fetcher) handle(req *UrlRequest) {
 		// use the default Transport
 		client.Transport = nil
 	}
-
-	request, err := http.NewRequest(req.Method, req.Url, strings.NewReader(req.Params))
+	// Set node name
+	req.Node = GetNodeInstance().GetName()
+	request, err := req.ToRequest()
 	if err != nil {
 		Error.Println("create request failed, ", err, req.Url)
 		return
@@ -99,6 +99,7 @@ func (f *Fetcher) handle(req *UrlRequest) {
 		Log.Println("status of the response: ", response.StatusCode)
 		return
 	}
+	Stat.AddCrawledCount(req.Crawler)
 	resp := NewResponse(req, response)
 
 	// store the resp body

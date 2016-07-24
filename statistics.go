@@ -96,6 +96,11 @@ func (s *Statistic) GetCrawlerStatistic(name string) *CrawlerStatistic {
 	return res
 }
 
+func (s *Statistic) RemCrawlerStatistic(name string) *Statistic {
+	delete(s.Crawler, name)
+	return s
+}
+
 func (s *Statistic) SetMaster(Node *NodeInfo) *Statistic {
 	s.Master = Node
 	return s

@@ -5,9 +5,9 @@ import (
 )
 
 func TestCrawler(t *testing.T) {
-	c := NewCrawler("test", []string{"www"}, 3, true, 5, 2, 3)
+	c := NewCrawler("test")
 	c.StartWith(func() []*UrlRequest {
-		req := NewUrlRequest("url", "GET", "crawlertest", "parsertest", "proxy", "", 0, 0, 0)
+		req := NewUrlRequest("url", "GET", "crawlertest", "parsertest", 0)
 		return []*UrlRequest{req}
 	})
 	c.AddParser("parsertest", func(resp *UrlResponse) (urls []*UrlRequest) {
