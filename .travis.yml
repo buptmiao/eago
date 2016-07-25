@@ -6,7 +6,6 @@ services:
   - redis-server
 
 go:
-  - 1.6
   - tip
 
 install:
