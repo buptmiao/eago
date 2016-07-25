@@ -12,13 +12,13 @@ import (
 )
 
 func ByrBBSCrawler() *eago.Crawler {
-	userid := ""
-	passwd := ""
+	userid := "inaadversity"
+	passwd := "362622365"
 	crawler := eago.NewCrawler("byrbbs")
 	crawler.SetDepth(3).AddSeedUrls(
 		//"https://bbs.byr.cn/section/ajax_list.json?uid=" + userid + "&root=sec-0",
 		//"https://bbs.byr.cn/section/ajax_list.json?uid="+userid+"&root=sec-1",
-		"https://bbs.byr.cn/section/ajax_list.json?uid=" + userid + "&root=sec-2",
+		//"https://bbs.byr.cn/section/ajax_list.json?uid=" + userid + "&root=sec-2",
 		//"https://bbs.byr.cn/section/ajax_list.json?uid="+userid+"&root=sec-3",
 		//"https://bbs.byr.cn/section/ajax_list.json?uid="+userid+"&root=sec-4",
 		//"https://bbs.byr.cn/section/ajax_list.json?uid="+userid+"&root=sec-5",
@@ -26,6 +26,7 @@ func ByrBBSCrawler() *eago.Crawler {
 		//"https://bbs.byr.cn/section/ajax_list.json?uid="+userid+"&root=sec-7",
 		//"https://bbs.byr.cn/section/ajax_list.json?uid="+userid+"&root=sec-8",
 		//"https://bbs.byr.cn/section/ajax_list.json?uid="+userid+"&root=sec-9",
+		"https://bbs.byr.cn/board/ACM_ICPC",
 	)
 	crawler.StartWith(func() []*eago.UrlRequest {
 		params := url.Values{}
@@ -48,11 +49,21 @@ func ByrBBSCrawler() *eago.Crawler {
 		unicode, _ := eago.GBKtoUTF(resp.Body)
 		log.Println("Body:", unicode)
 		log.Println("Content-Length:", len(resp.Body))
+		log.Println("cookies***********", resp.Resp.Header)
+		log.Println("cookies***********", resp.Resp.Header["Set-Cookie"])
 		res := make([]*eago.UrlRequest, 0, 10)
 		for _, v := range crawler.SeedUrls {
-			req := eago.NewUrlRequest(v, "GET", "byrbbs", "step1", 1)
+			req := eago.NewUrlRequest(v, "GET", "byrbbs", "step2", 1)
 			header := http.Header{}
+			cookies := ""
+			for _, v := range resp.Resp.Header["Set-Cookie"] {
+				cookies += strings.Split(v, ";")[0] + ";"
+			}
+			cookies = strings.TrimRight(cookies, ";")
+			log.Println("cookies***********", cookies)
+			header.Set("Cookie", cookies)
 			header.Set("X-Requested-With", "XMLHttpRequest")
+
 			req.SetDepth(1).SetHeader(header)
 			res = append(res, req)
 		}

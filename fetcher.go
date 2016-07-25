@@ -2,7 +2,6 @@ package eago
 
 import (
 	"net/http"
-	"net/http/cookiejar"
 	"net/url"
 	"sync"
 	"time"
@@ -123,7 +122,7 @@ func (f *Fetcher) getClient(req *UrlRequest) *http.Client {
 	var client *http.Client
 	f.cookieMu.Lock()
 	if _, ok := f.clientMap[cookie]; !ok {
-		jar, _ := cookiejar.New(nil)
+		jar := NewJar()
 		crawler := GetNodeInstance().GetCrawler(req.Crawler)
 		f.clientMap[cookie] = &http.Client{
 			Jar:     jar,
