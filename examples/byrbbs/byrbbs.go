@@ -12,8 +12,8 @@ import (
 )
 
 func ByrBBSCrawler() *eago.Crawler {
-	userid := "inaadversity"
-	passwd := "362622365"
+	userid := ""
+	passwd := ""
 	crawler := eago.NewCrawler("byrbbs")
 	crawler.SetDepth(3).AddSeedUrls(
 		//"https://bbs.byr.cn/section/ajax_list.json?uid=" + userid + "&root=sec-0",
