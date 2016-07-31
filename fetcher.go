@@ -2,6 +2,7 @@ package eago
 
 import (
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"sync"
 	"time"
@@ -92,6 +93,7 @@ func (f *Fetcher) handle(req *UrlRequest) {
 			return
 		} else {
 			Log.Println("dropped url: ", req.Url)
+			return
 		}
 	}
 	if response.StatusCode != 200 {
@@ -122,7 +124,7 @@ func (f *Fetcher) getClient(req *UrlRequest) *http.Client {
 	var client *http.Client
 	f.cookieMu.Lock()
 	if _, ok := f.clientMap[cookie]; !ok {
-		jar := NewJar()
+		jar, _ := cookiejar.New(nil)
 		crawler := GetNodeInstance().GetCrawler(req.Crawler)
 		f.clientMap[cookie] = &http.Client{
 			Jar:     jar,

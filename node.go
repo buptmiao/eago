@@ -143,6 +143,7 @@ func (n *Node) Stop() {
 
 func (n *Node) Restart() {
 	Log.Println("Restart the crawler...")
+	Stat.BeginNow()
 	n.fetch.Restart()
 	n.extract.Restart()
 	n.report.Restart()

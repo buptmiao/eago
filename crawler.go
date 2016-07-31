@@ -1,5 +1,7 @@
 package eago
 
+import "math"
+
 // Crawler implements the main work of the node.
 // It defines some primitive info.
 // If the current node is slave, a node will manage three entities
@@ -42,7 +44,7 @@ func NewCrawler(name string) *Crawler {
 	res := &Crawler{
 		Name:      name,
 		SeedUrls:  make([]string, 1),
-		Depth:     1,
+		Depth:     math.MaxInt32, // by default
 		InSite:    true,
 		Retry:     3,
 		Timeout:   5,
@@ -125,4 +127,12 @@ func (c *Crawler) GetParam(key string) interface{} {
 		return nil
 	}
 	return res
+}
+
+func (c *Crawler) Request(url, parser string, cookieJar int) *UrlRequest {
+	return NewUrlRequest(url, "GET", c.Name, parser, cookieJar)
+}
+
+func (c *Crawler) PostRequest(url, parser string, cookieJar int) *UrlRequest {
+	return NewUrlRequest(url, "POST", c.Name, parser, cookieJar)
 }

@@ -160,7 +160,7 @@ func (s *Statistic) GetStatistic() *Statistic {
 	begin, err := time.ParseInLocation("2006-01-02 15:04:05", stat.BeginAt, time.Local)
 	if err != nil {
 		Error.Println("parse time failed, Crawler has not been started ever")
-		Stat.Elapse = ""
+		stat.Elapse = ""
 		return &stat
 	}
 	elapse := float64(time.Since(begin)/1e6) / float64(1e3)
