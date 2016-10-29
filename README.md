@@ -5,32 +5,21 @@
 An easy distributed and restful crawler framework
 
 ## Installation
-Before install eago, you should install these dependencies
 
-    go get github.com/gin-gonic/gin
-    go get gopkg.in/redis.v3
-    go get github.com/BurntSushi/toml
-    go get gopkg.in/iconv.v1
-    go get github.com/PuerkitoBio/goquery
-
-Install:
-
-    go get github.com/buptmiao/eago
+    go get -u github.com/buptmiao/eago
     
 ## Features
-* Eago uses [Toml](https://github.com/BurntSushi/toml) to configure the parameters, for details: [config.toml](https://github.com/buptmiao/eago/blob/master/config.toml)
 
-* Make sure redis-server is correctly installed and launched on your system. Eago filters the duplicate urls by Redis, and the urls is sharded with a configurable number of redis shards 
-
-* You can customize the storage strategy in your application by implementing the interface [Storage](https://github.com/buptmiao/eago/blob/master/storage.go)
+* Eago works like [scrapy](https://github.com/scrapy/scrapy), but it is more lightweight and effective.
 
 * Eago supports RESTful API, through which users can monitor eago's statistic information, add new crawler job, control the crawler and so on.
 
 * Eago can be deployed as clusters. An eago cluster consist of one master and multiple slavers, and the master node is auto-discovered
 
+
 ## QuickStart
 
-An Example:
+You can run eago like this without any crawlers:
 
 ```go
 import (
@@ -80,5 +69,8 @@ Response:
         "Message": "You know, for data"
     }
 ```
+## Write a crawler
+
+see the [demo](https://github.com/buptmiao/eago/blob/master/examples/byrbbs/byrbbs.go), which crawls the bbs web pages. The crawler implements multiple Parsers that analysis web page and extract key information.
 
 ## More updates will come
